@@ -58,12 +58,17 @@ const TR_MAP: Record<string, string> = {
 
 /**
  * Türkçe karakterleri ASCII'ye katlayıp küçük harfe çevirir.
+ *
  * `I`/`İ` ayrımı JS'in varsayılan toLowerCase'inde bozulduğu için elle yapılıyor.
+ * NFD ayrıştırması ayrıca Avrupa aksanlarını temizliyor (Citroën, Škoda,
+ * Huracán gibi marka adları ilanlarda hem aksanlı hem aksansız yazılıyor).
  */
 export function fold(input: string): string {
   let out = "";
   for (const ch of input) out += TR_MAP[ch] ?? ch;
   return out
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
     .toLowerCase()
     .replace(/[^a-z0-9.\s-]/g, " ")
     .replace(/\s+/g, " ")

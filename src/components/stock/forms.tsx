@@ -1,8 +1,21 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useMemo, useState } from "react";
 import { addExpense, addPayment, createVehicle, recordSale } from "@/app/araclar/actions";
+import { Combobox } from "@/components/Combobox";
 import { IDLE, type ActionState } from "@/lib/action-state";
+import {
+  BODY_OPTIONS,
+  COLORS,
+  ENGINE_SIZES,
+  FUEL_OPTIONS,
+  MAKE_ALIASES,
+  MAKE_NAMES,
+  MODELS_BY_MAKE,
+  TRANSMISSION_OPTIONS,
+  TRIMS_BY_MAKE,
+  TRIMS_BY_MODEL,
+} from "@/domain/taxonomy";
 import {
   EXPENSE_CATEGORIES,
   EXPENSE_LABELS,
@@ -58,10 +71,38 @@ function Alert({ state }: { state: ActionState }) {
   );
 }
 
+/** Marka seçenekleri; yazım varyantları arama için alias olarak veriliyor */
+const MAKE_OPTIONS = MAKE_NAMES.map((name) => ({ value: name, aliases: MAKE_ALIASES[name] }));
+const COLOR_OPTIONS = COLORS.map((v) => ({ value: v }));
+const ENGINE_OPTIONS = ENGINE_SIZES.map((v) => ({ value: v }));
+const FUEL_OPTS = FUEL_OPTIONS.map((v) => ({ value: v }));
+const TRANSMISSION_OPTS = TRANSMISSION_OPTIONS.map((v) => ({ value: v }));
+const BODY_OPTS = BODY_OPTIONS.map((v) => ({ value: v }));
+
 /** Araç alımı — panelin en çok kullanılan formu, o yüzden tek ekranda ve kısa */
 export function VehicleForm() {
   const [state, action, pending] = useActionState(createVehicle, IDLE);
+  const [make, setMake] = useState("");
+  const [model, setModel] = useState("");
+  const [trim, setTrim] = useState("");
+  const [color, setColor] = useState("");
+  const [engine, setEngine] = useState("");
+  const [fuel, setFuel] = useState("");
+  const [transmission, setTransmission] = useState("");
+  const [body, setBody] = useState("");
   const e = state.errors ?? {};
+
+  // Model listesi seçili markaya göre daralıyor; marka listede yoksa serbest giriş kalıyor
+  const modelOptions = useMemo(
+    () => (MODELS_BY_MAKE[make] ?? []).map((v) => ({ value: v })),
+    [make],
+  );
+
+  // Paket önce model, model yoksa marka üzerinden öneriliyor
+  const trimOptions = useMemo(() => {
+    const list = TRIMS_BY_MODEL[`${make}|${model}`] ?? TRIMS_BY_MAKE[make] ?? [];
+    return list.map((v) => ({ value: v }));
+  }, [make, model]);
 
   return (
     <form action={action} className="p-4 space-y-5">
@@ -73,14 +114,42 @@ export function VehicleForm() {
           <Field label="Plaka" hint="opsiyonel" error={e.plate}>
             <input name="plate" placeholder="34 ABC 123" className={CONTROL} />
           </Field>
-          <Field label="Marka" error={e.make}>
-            <input name="make" required placeholder="Volkswagen" className={CONTROL} />
+          <Field label="Marka" hint="yazmaya başla" error={e.make}>
+            <Combobox
+              name="make"
+              options={MAKE_OPTIONS}
+              value={make}
+              onChange={(v) => {
+                setMake(v);
+                // Marka değişince eski model ve paket geçersiz kalıyor
+                if (MODELS_BY_MAKE[v] && !MODELS_BY_MAKE[v].includes(model)) {
+                  setModel("");
+                  setTrim("");
+                }
+              }}
+              placeholder="Volkswagen"
+              showBrandBadge
+              required
+            />
           </Field>
           <Field label="Model" error={e.model}>
-            <input name="model" required placeholder="Passat" className={CONTROL} />
+            <Combobox
+              name="model"
+              options={modelOptions}
+              value={model}
+              onChange={setModel}
+              placeholder={make ? "Passat" : "Önce marka seç"}
+              required
+            />
           </Field>
           <Field label="Paket" error={e.trim}>
-            <input name="trim" placeholder="Highline" className={CONTROL} />
+            <Combobox
+              name="trim"
+              options={trimOptions}
+              value={trim}
+              onChange={setTrim}
+              placeholder={make ? "Highline" : "Önce marka seç"}
+            />
           </Field>
 
           <Field label="Model yılı" error={e.year}>
@@ -96,39 +165,50 @@ export function VehicleForm() {
             <input name="km" type="number" placeholder="120000" className={CONTROL} />
           </Field>
           <Field label="Motor" error={e.engine}>
-            <input name="engine" placeholder="1.6" className={CONTROL} />
+            <Combobox
+              name="engine"
+              options={ENGINE_OPTIONS}
+              value={engine}
+              onChange={setEngine}
+              placeholder="1.6"
+            />
           </Field>
           <Field label="Renk" error={e.color}>
-            <input name="color" placeholder="Beyaz" className={CONTROL} />
+            <Combobox
+              name="color"
+              options={COLOR_OPTIONS}
+              value={color}
+              onChange={setColor}
+              placeholder="Beyaz"
+            />
           </Field>
 
           <Field label="Yakıt" error={e.fuel}>
-            <select name="fuel" defaultValue="" className={CONTROL}>
-              <option value="">Seç</option>
-              <option>Dizel</option>
-              <option>Benzin</option>
-              <option>Benzin &amp; LPG</option>
-              <option>Hibrit</option>
-              <option>Elektrik</option>
-            </select>
+            <Combobox
+              name="fuel"
+              options={FUEL_OPTS}
+              value={fuel}
+              onChange={setFuel}
+              placeholder="Dizel"
+            />
           </Field>
           <Field label="Vites" error={e.transmission}>
-            <select name="transmission" defaultValue="" className={CONTROL}>
-              <option value="">Seç</option>
-              <option>Manuel</option>
-              <option>Otomatik</option>
-              <option>Yarı Otomatik</option>
-            </select>
+            <Combobox
+              name="transmission"
+              options={TRANSMISSION_OPTS}
+              value={transmission}
+              onChange={setTransmission}
+              placeholder="Otomatik"
+            />
           </Field>
           <Field label="Kasa" error={e.body}>
-            <select name="body" defaultValue="" className={CONTROL}>
-              <option value="">Seç</option>
-              <option>Sedan</option>
-              <option>Hatchback</option>
-              <option>Station Wagon</option>
-              <option>SUV</option>
-              <option>Panelvan</option>
-            </select>
+            <Combobox
+              name="body"
+              options={BODY_OPTS}
+              value={body}
+              onChange={setBody}
+              placeholder="Sedan"
+            />
           </Field>
           <Field label="Şasi no" hint="noter için" error={e.chassisNo}>
             <input name="chassisNo" className={CONTROL} />

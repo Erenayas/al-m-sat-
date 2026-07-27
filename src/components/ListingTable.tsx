@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BrandBadge } from "./BrandBadge";
 import { CompareToggle } from "./CompareContext";
 import { DealBadge, Empty, PressureBar } from "./ui";
 import { formatKm, formatPct, formatTL, formatTLShort, timeAgo } from "@/lib/format";
@@ -102,14 +103,17 @@ function Cell({ column, row: r }: { column: Column; row: ListingRow }) {
 
     case "vehicle":
       return (
-        <Link href={`/pazar/ilan/${r.id}`} className="block max-w-[22rem]">
-          <span className="font-medium">
-            {r.make} {r.model}
-            {r.trim ? ` ${r.trim}` : ""}
-          </span>
-          <span className="block text-xs text-muted truncate">
-            {[r.year, r.engine, r.fuel, r.transmission].filter(Boolean).join(" · ")}
-            {r.damageRecord ? ` · Tramer ${formatTLShort(r.damageRecord)}` : " · Hasarsız"}
+        <Link href={`/pazar/ilan/${r.id}`} className="flex items-center gap-2.5 max-w-[24rem]">
+          <BrandBadge make={r.make} size={30} />
+          <span className="min-w-0">
+            <span className="block font-medium truncate">
+              {r.make} {r.model}
+              {r.trim ? ` ${r.trim}` : ""}
+            </span>
+            <span className="block text-xs text-muted truncate">
+              {[r.year, r.engine, r.fuel, r.transmission].filter(Boolean).join(" · ")}
+              {r.damageRecord ? ` · Tramer ${formatTLShort(r.damageRecord)}` : " · Hasarsız"}
+            </span>
           </span>
         </Link>
       );

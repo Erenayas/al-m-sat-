@@ -11,8 +11,9 @@
     "db:studio": "drizzle-kit studio",
     "seed": "tsx --env-file=.env.local src/ingest/seed.ts",
     "ingest": "tsx --env-file=.env.local src/ingest/run.ts",
-    "test": "tsx --test src/domain/normalize.test.ts src/domain/pricing.test.ts src/domain/profit.test.ts src/ingest/adapters/galleryXml.test.ts src/ingest/fetchFeed.test.ts src/lib/listings.test.ts src/lib/password.test.ts",
-    "tenant": "tsx --conditions=react-server --env-file=.env.local src/scripts/tenant.ts"
+    "test": "tsx --test src/domain/normalize.test.ts src/domain/pricing.test.ts src/domain/profit.test.ts src/ingest/adapters/galleryXml.test.ts src/ingest/fetchFeed.test.ts src/lib/listings.test.ts src/lib/password.test.ts src/lib/search.test.ts",
+    "tenant": "tsx --conditions=react-server --env-file=.env.local src/scripts/tenant.ts",
+    "logos": "tsx src/scripts/logos.ts"
   },
   "dependencies": {
     "drizzle-orm": "^0.45.2",
@@ -30,6 +31,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "drizzle-kit": "^0.31.10",
+    "simple-icons": "^16.27.1",
     "tailwindcss": "^4",
     "tsx": "^4.23.1",
     "typescript": "^5"

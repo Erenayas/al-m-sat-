@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BrandBadge } from "@/components/BrandBadge";
 import { Empty } from "@/components/ui";
 import { STATUS_LABELS, type VehicleStatus } from "@/db/inventory";
 import { formatKm, formatPct, formatTL, formatTLShort } from "@/lib/format";
@@ -58,13 +59,16 @@ export function StockTable({ rows }: { rows: StockRow[] }) {
             return (
               <tr key={r.id} className="border-b border-border last:border-0 hover:bg-surface-2">
                 <td className="px-3 py-2.5">
-                  <Link href={`/araclar/${r.id}`} className="block max-w-[20rem]">
-                    <span className="font-medium">
-                      {r.make} {r.model}
-                      {r.trim ? ` ${r.trim}` : ""}
-                    </span>
-                    <span className="block text-xs text-muted truncate">
-                      {[r.plate, r.year, formatKm(r.km)].filter(Boolean).join(" · ")}
+                  <Link href={`/araclar/${r.id}`} className="flex items-center gap-2.5 max-w-[22rem]">
+                    <BrandBadge make={r.make} size={30} />
+                    <span className="min-w-0">
+                      <span className="block font-medium truncate">
+                        {r.make} {r.model}
+                        {r.trim ? ` ${r.trim}` : ""}
+                      </span>
+                      <span className="block text-xs text-muted truncate">
+                        {[r.plate, r.year, formatKm(r.km)].filter(Boolean).join(" · ")}
+                      </span>
                     </span>
                   </Link>
                 </td>

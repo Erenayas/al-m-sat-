@@ -95,9 +95,12 @@ const KM_SENSITIVITY: Record<Segment, number> = {
   C: 0.011,
   D: 0.014,
   E: 0.017,
+  F: 0.020,
   "SUV-B": 0.011,
   "SUV-C": 0.013,
   "SUV-D": 0.016,
+  // Spor araçta km, fiyatı en sert vuran değişken: alıcı düşük km arıyor
+  spor: 0.022,
   ticari: 0.007,
 };
 
@@ -129,9 +132,11 @@ const YEAR_APPRECIATION: Record<Segment, number> = {
   C: 0.100,
   D: 0.108,
   E: 0.115,
+  F: 0.125,
   "SUV-B": 0.100,
   "SUV-C": 0.106,
   "SUV-D": 0.112,
+  spor: 0.120,
   ticari: 0.090,
 };
 
