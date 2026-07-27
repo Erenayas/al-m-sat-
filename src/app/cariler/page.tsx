@@ -1,6 +1,7 @@
 import { Card, Empty } from "@/components/ui";
 import { formatNumber } from "@/lib/format";
 import { listContacts } from "@/lib/stock";
+import { requireSession } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -15,9 +16,10 @@ export default async function ContactsPage({
 }: {
   searchParams: Promise<{ q?: string | string[] }>;
 }) {
+  const { tenantId } = await requireSession();
   const params = await searchParams;
   const q = Array.isArray(params.q) ? params.q[0] : params.q;
-  const rows = await listContacts(q);
+  const rows = await listContacts(tenantId, q);
 
   return (
     <div className="space-y-4">

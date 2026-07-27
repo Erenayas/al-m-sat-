@@ -9,7 +9,7 @@ try {
 }
 
 export default {
-  schema: ["./src/db/schema.ts", "./src/db/inventory.ts"],
+  schema: ["./src/db/schema.ts", "./src/db/inventory.ts", "./src/db/auth.ts"],
   out: "./drizzle",
   dialect: "postgresql",
   dbCredentials: {

@@ -3,6 +3,7 @@ import { Card, DealBadge, Empty, PressureBar } from "@/components/ui";
 import { formatKm, formatPct, formatTL, formatTLShort, timeAgo } from "@/lib/format";
 import { getListingsByIds } from "@/lib/queries";
 import type { ListingRow } from "@/lib/listings";
+import { requireSession } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -147,6 +148,7 @@ export default async function ComparePage({
 }: {
   searchParams: Promise<{ ids?: string | string[] }>;
 }) {
+  await requireSession();
   const { ids: raw } = await searchParams;
   const idParam = Array.isArray(raw) ? raw[0] : raw;
   const ids = (idParam ?? "")

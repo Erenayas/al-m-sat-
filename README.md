@@ -34,10 +34,43 @@ npm install
 cp .env.example .env.local        # DATABASE_URL'i düzenle
 createdb otopanel
 npm run db:push
+npm run tenant -- ekle "Galeri Adı" galeri-slug sahip@ornek.com "Ad Soyad"
 npm run dev
 ```
 
-`http://localhost:3000` — panel boş başlar, ilk aracı ekleyince çalışmaya başlar.
+Son komut galeriyi açar ve ilk parolayı ekrana yazar. `http://localhost:3000`
+adresinde giriş yapıp ilk aracı eklediğinde panel çalışmaya başlar.
+
+## Çoklu galeri
+
+Tek kurulum birden fazla galeriye hizmet veriyor. Her galeri ayrı bir `tenant`;
+stok, masraf, cari — hepsi galeriye kilitli ve sorgular istisnasız `tenant_id`
+ile daraltılıyor.
+
+```bash
+npm run tenant -- ekle "Kadıköy Oto" kadikoy ahmet@ornek.com "Ahmet Yılmaz"
+npm run tenant -- liste                    # galeriler, araç sayıları, son giriş
+npm run tenant -- parola ahmet@ornek.com   # parola sıfırla (açık oturumları düşürür)
+npm run tenant -- askiya kadikoy           # ödeme gelmezse girişi kapat, veri durur
+npm run tenant -- aktif kadikoy            # yeniden aç
+```
+
+Panelde kayıt ekranı bilinçli olarak **yok** — hesapları sen açıyorsun, kimse
+kendi kendine giremiyor.
+
+### Güvenlik notları
+
+- Parolalar `scrypt` ile, her biri kendi rastgele tuzuyla saklanıyor;
+  doğrulama sabit zamanlı karşılaştırma ile yapılıyor.
+- Oturumlar veritabanında tutuluyor ve çerezdeki jetonun yalnızca SHA-256
+  özeti kaydediliyor — veritabanı sızsa bile oturum çalınamıyor.
+- `proxy.ts` yalnızca iyimser bir çerez kontrolü yapıyor. Gerçek yetkilendirme
+  her sayfa ve her server action içinde `requireSession()` ile, veriye en yakın
+  noktada. Server action'lar doğrudan POST ile çağrılabildiği için arayüzde
+  düğmeyi gizlemek yetkilendirme sayılmıyor.
+- Kimliği dışarıdan gelen her kayıt (araç, masraf) ayrıca galeriye ait mi diye
+  doğrulanıyor; id değiştirerek başka galerinin verisine erişilemiyor.
+- Galeri askıya alındığında girişler kapanıyor, verisi olduğu gibi duruyor.
 
 ## Komutlar
 
@@ -49,6 +82,7 @@ npm run dev
 | `npm test` | Birim testleri |
 | `npm run db:push` | Şemayı veritabanına uygula |
 | `npm run db:studio` | Drizzle Studio |
+| `npm run tenant -- <komut>` | Galeri ve kullanıcı yönetimi |
 | `npm run seed` | **Demo** piyasa verisi üretir (bkz. uyarı) |
 | `npm run ingest [feeds.json]` | Galeri feed'lerini tara |
 
@@ -110,7 +144,8 @@ Tailwind CSS 4 · Zod
 
 ## Yol haritası
 
-- [ ] Çoklu galeri (tenant) desteği ve kullanıcı hesapları
+- [ ] Kullanıcının kendi parolasını değiştirebildiği ayarlar ekranı
+- [ ] Galeri başına birden fazla çalışan hesabı ve yetki ayrımı
 - [ ] Takas zinciri arayüzü (`trade_in_for_id` alanı hazır)
 - [ ] Araç fotoğrafları ve belge yükleme
 - [ ] Aylık kâr/zarar raporu ve dışa aktarma (Excel)

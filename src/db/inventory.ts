@@ -10,6 +10,7 @@ import {
   uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { vehicles } from "./schema";
+import { tenants } from "./auth";
 
 /**
  * Galerinin KENDİ stoğu.
@@ -73,6 +74,9 @@ export const contacts = pgTable(
   "contacts",
   {
     id: serial("id").primaryKey(),
+    tenantId: integer("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
     name: text("name").notNull(),
     phone: text("phone"),
     city: text("city"),
@@ -81,7 +85,10 @@ export const contacts = pgTable(
     note: text("note"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
-  (tbl) => [index("contacts_name_idx").on(tbl.name), index("contacts_phone_idx").on(tbl.phone)],
+  (tbl) => [
+    index("contacts_tenant_idx").on(tbl.tenantId),
+    index("contacts_name_idx").on(tbl.tenantId, tbl.name),
+  ],
 );
 
 /**
@@ -96,6 +103,9 @@ export const stockVehicles = pgTable(
   "stock_vehicles",
   {
     id: serial("id").primaryKey(),
+    tenantId: integer("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
 
     /** Plaka galeride aracın günlük konuşulan kimliği */
     plate: text("plate"),
@@ -142,9 +152,12 @@ export const stockVehicles = pgTable(
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (tbl) => [
-    index("stock_status_idx").on(tbl.status),
-    index("stock_purchase_date_idx").on(tbl.purchaseDate),
-    uniqueIndex("stock_plate_idx").on(tbl.plate),
+    index("stock_tenant_idx").on(tbl.tenantId),
+    index("stock_status_idx").on(tbl.tenantId, tbl.status),
+    index("stock_purchase_date_idx").on(tbl.tenantId, tbl.purchaseDate),
+    // Plaka yalnızca kendi galerisi içinde benzersiz; iki galeri aynı aracı
+    // farklı zamanlarda almış olabilir ve bu geçerli bir durum.
+    uniqueIndex("stock_plate_idx").on(tbl.tenantId, tbl.plate),
   ],
 );
 

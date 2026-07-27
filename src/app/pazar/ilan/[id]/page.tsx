@@ -5,6 +5,7 @@ import { Card, DealBadge, Empty, PressureBar, Stat } from "@/components/ui";
 import { analyzePricePressure } from "@/domain/pricing";
 import { formatDate, formatKm, formatPct, formatTL, formatTLShort } from "@/lib/format";
 import { getCohortPeers, getListing, getPriceHistory } from "@/lib/queries";
+import { requireSession } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -13,6 +14,7 @@ export default async function ListingDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  await requireSession();
   const { id: rawId } = await params;
   const id = Number.parseInt(rawId, 10);
   if (!Number.isFinite(id)) notFound();

@@ -13,6 +13,7 @@ import {
 } from "@/db/inventory";
 import { formatDate, formatKm, formatPct, formatTL } from "@/lib/format";
 import { getExpenses, getPayments, getStockVehicle } from "@/lib/stock";
+import { requireSession } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -21,14 +22,15 @@ export default async function VehicleDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const { tenantId } = await requireSession();
   const { id: rawId } = await params;
   const id = Number.parseInt(rawId, 10);
   if (!Number.isFinite(id)) notFound();
 
-  const vehicle = await getStockVehicle(id);
+  const vehicle = await getStockVehicle(tenantId, id);
   if (!vehicle) notFound();
 
-  const [expenses, paymentRows] = await Promise.all([getExpenses(id), getPayments(id)]);
+  const [expenses, paymentRows] = await Promise.all([getExpenses(tenantId, id), getPayments(tenantId, id)]);
   const p = vehicle.profit;
   const sold = vehicle.status === "satildi";
 

@@ -9,11 +9,14 @@ import {
   getStaleListings,
   getTopDeals,
 } from "@/lib/queries";
+import { requireSession } from "@/lib/auth";
 
 // Panel canlı bir akış gösteriyor; her istekte taze veri okunmalı.
 export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
+  await requireSession();
+
   const [kpis, fresh, deals, drops, stale] = await Promise.all([
     getKpis(),
     getFreshListings(10),

@@ -6,6 +6,7 @@ import { FeedFetchError, fetchFeedBody } from "@/ingest/fetchFeed";
 import { ingestListings, recomputeStatsAndScores, upsertSource } from "@/ingest/pipeline";
 import { normalizeVehicle } from "@/domain/normalize";
 import type { RawListing } from "@/ingest/types";
+import { requireSession } from "@/lib/auth";
 
 /**
  * Feed bağlama akışı.
@@ -109,6 +110,7 @@ function describe(raw: RawListing): SampleRow {
 
 /** Adım 1 — hiçbir şey yazmadan feed'i çözümle */
 export async function analyzeFeed(_prev: FeedState, formData: FormData): Promise<FeedState> {
+  await requireSession();
   const values = {
     code: String(formData.get("code") ?? ""),
     name: String(formData.get("name") ?? ""),
@@ -148,6 +150,7 @@ export async function analyzeFeed(_prev: FeedState, formData: FormData): Promise
 
 /** Adım 2 — kaynağı kaydet, ilanları içe aktar, skorları yeniden hesapla */
 export async function importFeed(_prev: FeedState, formData: FormData): Promise<FeedState> {
+  await requireSession();
   const values = {
     code: String(formData.get("code") ?? "").trim(),
     name: String(formData.get("name") ?? "").trim(),

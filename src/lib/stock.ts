@@ -6,15 +6,20 @@ import {
   summarizePortfolio,
   type ProfitResult,
   type PortfolioSummary,
+  type StockAge,
 } from "@/domain/profit";
-import type { StockAge } from "@/domain/profit";
 
 /**
  * Stok (galerinin kendi araçları) sorguları.
  *
- * Kâr ve maliyet SQL'de değil, `domain/profit.ts` üzerinden hesaplanıyor.
- * Masraf araç satıldıktan sonra bile gelebildiği için materyalize edilmiş bir
- * kâr kolonu sessizce bayatlardı; formülün de tek bir yerde durması gerekiyor.
+ * Her fonksiyon ilk argüman olarak `tenantId` alıyor ve sorgusunu bu kolona
+ * göre daraltıyor. Zorunlu argüman olması bilinçli: varsayılan değeri olsaydı
+ * ya da opsiyonel olsaydı, bir çağrıda unutulduğunda sessizce tüm galerilerin
+ * verisi dönerdi. Bu üründe yapılabilecek en ağır hata bu.
+ *
+ * Kâr ve maliyet SQL'de değil `domain/profit.ts` üzerinden hesaplanıyor:
+ * masraf araç satıldıktan sonra da gelebildiği için materyalize bir kâr
+ * kolonu sessizce bayatlardı.
  */
 
 interface StockRowRaw {
@@ -74,8 +79,8 @@ const stockSelect = sql`
     sv.sold_to_id        as "soldToId",
     cb.name              as "boughtFrom",
     cs.name              as "soldTo",
-    coalesce(e.total, 0)::bigint as "expenseTotal",
-    coalesce(e.cnt, 0)::int      as "expenseCount",
+    coalesce(e.total, 0)::bigint     as "expenseTotal",
+    coalesce(e.cnt, 0)::int          as "expenseCount",
     coalesce(p.collected, 0)::bigint as "collected"
   from stock_vehicles sv
   left join contacts cb on cb.id = sv.purchased_from_id
@@ -125,6 +130,7 @@ export const STOCK_SORT_LABELS: Record<StockSort, string> = {
 };
 
 export async function listStock(
+  tenantId: number,
   opts: { filter?: StockFilter; search?: string } = {},
 ): Promise<StockRow[]> {
   const { filter = "stokta", search } = opts;
@@ -132,7 +138,7 @@ export async function listStock(
 
   const rows = await sql<StockRowRaw[]>`
     ${stockSelect}
-    where true
+    where sv.tenant_id = ${tenantId}
       ${filter === "hepsi" || filter === "olu" ? sql`` : sql`and sv.status = ${filter}`}
       ${
         filter === "olu"
@@ -171,8 +177,12 @@ export function sortStock(rows: StockRow[], sort: StockSort): StockRow[] {
   }
 }
 
-export async function getStockVehicle(id: number): Promise<StockRow | null> {
-  const rows = await sql<StockRowRaw[]>`${stockSelect} where sv.id = ${id} limit 1`;
+export async function getStockVehicle(
+  tenantId: number,
+  id: number,
+): Promise<StockRow | null> {
+  const rows = await sql<StockRowRaw[]>`
+    ${stockSelect} where sv.id = ${id} and sv.tenant_id = ${tenantId} limit 1`;
   return enrich(rows)[0] ?? null;
 }
 
@@ -185,11 +195,15 @@ export interface ExpenseRow {
   documentNo: string | null;
 }
 
-export async function getExpenses(stockVehicleId: number): Promise<ExpenseRow[]> {
+/** Masraflar araç üzerinden galeriye bağlanıyor; id tahmin ederek başkasının verisi okunamıyor */
+export async function getExpenses(tenantId: number, vehicleId: number): Promise<ExpenseRow[]> {
   return sql<ExpenseRow[]>`
-    select id, category, amount, spent_at as "spentAt", note, document_no as "documentNo"
-    from stock_expenses where stock_vehicle_id = ${stockVehicleId}
-    order by spent_at, id`;
+    select x.id, x.category, x.amount, x.spent_at as "spentAt", x.note,
+           x.document_no as "documentNo"
+    from stock_expenses x
+    join stock_vehicles sv on sv.id = x.stock_vehicle_id
+    where x.stock_vehicle_id = ${vehicleId} and sv.tenant_id = ${tenantId}
+    order by x.spent_at, x.id`;
 }
 
 export interface PaymentRow {
@@ -201,23 +215,24 @@ export interface PaymentRow {
   note: string | null;
 }
 
-export async function getPayments(stockVehicleId: number): Promise<PaymentRow[]> {
+export async function getPayments(tenantId: number, vehicleId: number): Promise<PaymentRow[]> {
   return sql<PaymentRow[]>`
-    select id, direction, amount, method, paid_at as "paidAt", note
-    from payments where stock_vehicle_id = ${stockVehicleId}
-    order by paid_at, id`;
+    select p.id, p.direction, p.amount, p.method, p.paid_at as "paidAt", p.note
+    from payments p
+    join stock_vehicles sv on sv.id = p.stock_vehicle_id
+    where p.stock_vehicle_id = ${vehicleId} and sv.tenant_id = ${tenantId}
+    order by p.paid_at, p.id`;
 }
 
 export interface PortfolioView extends PortfolioSummary {
-  /** Bu ay satılan araç ve kâr */
   soldThisMonth: number;
   profitThisMonth: number;
   /** Stoktakilerin istenen fiyatına göre beklenen kâr */
   projectedProfit: number;
 }
 
-export async function getPortfolio(): Promise<PortfolioView> {
-  const rows = await sql<StockRowRaw[]>`${stockSelect}`;
+export async function getPortfolio(tenantId: number): Promise<PortfolioView> {
+  const rows = await sql<StockRowRaw[]>`${stockSelect} where sv.tenant_id = ${tenantId}`;
   const all = enrich(rows);
 
   const summary = summarizePortfolio(
@@ -256,20 +271,28 @@ export interface ContactRow {
   soldCount: number;
 }
 
-export async function listContacts(search?: string): Promise<ContactRow[]> {
+export async function listContacts(tenantId: number, search?: string): Promise<ContactRow[]> {
   const term = search?.trim() ? `%${search.trim()}%` : null;
   return sql<ContactRow[]>`
     select c.id, c.name, c.phone, c.city, c.kind, c.note,
-      (select count(*) from stock_vehicles where purchased_from_id = c.id)::int as "boughtCount",
-      (select count(*) from stock_vehicles where sold_to_id = c.id)::int        as "soldCount"
+      (select count(*) from stock_vehicles
+        where purchased_from_id = c.id and tenant_id = ${tenantId})::int as "boughtCount",
+      (select count(*) from stock_vehicles
+        where sold_to_id = c.id and tenant_id = ${tenantId})::int        as "soldCount"
     from contacts c
-    ${term ? sql`where c.name ilike ${term} or c.phone ilike ${term}` : sql``}
+    where c.tenant_id = ${tenantId}
+      ${term ? sql`and (c.name ilike ${term} or c.phone ilike ${term})` : sql``}
     order by c.name`;
 }
 
-/** Masrafların kategori bazında toplamı — "param nereye gidiyor" ekranı için */
-export async function getExpenseTotals(): Promise<{ category: string; total: number; cnt: number }[]> {
+export async function getExpenseTotals(
+  tenantId: number,
+): Promise<{ category: string; total: number; cnt: number }[]> {
   return sql<{ category: string; total: number; cnt: number }[]>`
-    select category, sum(amount)::bigint as total, count(*)::int as cnt
-    from stock_expenses group by category order by sum(amount) desc`;
+    select x.category, sum(x.amount)::bigint as total, count(*)::int as cnt
+    from stock_expenses x
+    join stock_vehicles sv on sv.id = x.stock_vehicle_id
+    where sv.tenant_id = ${tenantId}
+    group by x.category
+    order by sum(x.amount) desc`;
 }

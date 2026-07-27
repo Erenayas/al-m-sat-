@@ -5,15 +5,18 @@ import { EXPENSE_LABELS, type ExpenseCategory } from "@/db/inventory";
 import { DEAD_STOCK_DAYS } from "@/domain/profit";
 import { formatDays, formatNumber, formatPct, formatTL, formatTLShort } from "@/lib/format";
 import { getExpenseTotals, getPortfolio, listStock, sortStock } from "@/lib/stock";
+import { requireSession } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
+  const { tenantId } = await requireSession();
+
   const [portfolio, inStock, sold, expenseTotals] = await Promise.all([
-    getPortfolio(),
-    listStock({ filter: "stokta" }),
-    listStock({ filter: "satildi" }),
-    getExpenseTotals(),
+    getPortfolio(tenantId),
+    listStock(tenantId, { filter: "stokta" }),
+    listStock(tenantId, { filter: "satildi" }),
+    getExpenseTotals(tenantId),
   ]);
 
   const dead = inStock.filter((r) => r.profit.daysHeld >= DEAD_STOCK_DAYS);

@@ -9,6 +9,7 @@ import {
   type StockFilter,
   type StockSort,
 } from "@/lib/stock";
+import { requireSession } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -32,6 +33,7 @@ export default async function VehiclesPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  const { tenantId } = await requireSession();
   const params = await searchParams;
 
   const rawFilter = one(params.filtre);
@@ -46,7 +48,7 @@ export default async function VehiclesPage({
 
   const search = one(params.q);
 
-  const rows = sortStock(await listStock({ filter, search }), sort);
+  const rows = sortStock(await listStock(tenantId, { filter, search }), sort);
   const totalCost = rows.reduce((s, r) => s + r.profit.cost, 0);
   const totalProfit = rows.reduce((s, r) => s + (r.profit.profit ?? 0), 0);
 

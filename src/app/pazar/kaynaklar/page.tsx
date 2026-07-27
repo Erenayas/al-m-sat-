@@ -2,10 +2,12 @@ import { FeedImportForm } from "@/components/FeedImportForm";
 import { Card, Empty } from "@/components/ui";
 import { formatNumber, timeAgo } from "@/lib/format";
 import { getSourceStatus } from "@/lib/queries";
+import { requireSession } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
 export default async function SourcesPage() {
+  await requireSession();
   const sources = await getSourceStatus();
   const demoCount = sources.filter((s) => s.isDemo).length;
 

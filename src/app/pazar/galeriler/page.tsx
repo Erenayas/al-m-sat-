@@ -3,6 +3,7 @@ import { ListingTable } from "@/components/ListingTable";
 import { Card, Empty } from "@/components/ui";
 import { formatDays, formatNumber, formatPct, formatTLShort } from "@/lib/format";
 import { getStockSummaries, searchListings } from "@/lib/queries";
+import { requireSession } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -18,6 +19,7 @@ export default async function StockPage({
 }: {
   searchParams: Promise<{ galeri?: string | string[] }>;
 }) {
+  await requireSession();
   const params = await searchParams;
   const raw = Array.isArray(params.galeri) ? params.galeri[0] : params.galeri;
 

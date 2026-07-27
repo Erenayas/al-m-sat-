@@ -5,6 +5,7 @@ import { Card } from "@/components/ui";
 import { formatNumber } from "@/lib/format";
 import { SORT_KEYS, type ListingFilters, type SortKey } from "@/lib/listings";
 import { getFilterOptions, searchListings } from "@/lib/queries";
+import { requireSession } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -44,6 +45,7 @@ export default async function ListingsPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  await requireSession();
   const params = await searchParams;
   const filters = parseFilters(params);
 
