@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { StockTable } from "@/components/stock/StockTable";
-import { Card, Empty, Stat } from "@/components/ui";
+import { Card, Empty, PageHeader, Stat } from "@/components/ui";
 import { EXPENSE_LABELS, type ExpenseCategory } from "@/db/inventory";
 import { DEAD_STOCK_DAYS } from "@/domain/profit";
 import { formatDays, formatNumber, formatPct, formatTL, formatTLShort } from "@/lib/format";
@@ -27,17 +27,14 @@ export default async function DashboardPage() {
   if (!inStock.length && !sold.length) {
     return (
       <div className="space-y-6">
-        <h1 className="text-xl font-semibold">Panel</h1>
+        <PageHeader title="Panel" />
         <Card>
           <div className="px-4 py-12 text-center space-y-3">
             <p className="text-sm text-muted">
               Henüz hiç araç kaydı yok. İlk aracı ekleyince maliyet, kâr ve
               sermaye takibi çalışmaya başlar.
             </p>
-            <Link
-              href="/araclar/yeni"
-              className="inline-block rounded-lg bg-accent px-5 h-10 leading-10 text-sm font-medium text-white"
-            >
+            <Link href="/araclar/yeni" className="btn btn-primary !h-10 !px-5">
               İlk aracı ekle
             </Link>
           </div>
@@ -49,26 +46,22 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between gap-4">
-        <div>
-          <h1 className="text-xl font-semibold">Panel</h1>
-          <p className="text-sm text-muted mt-1">
-            Sermayen nerede, ne kazandırdı, ne kadar bekliyor.
-          </p>
-        </div>
-        <Link
-          href="/araclar/yeni"
-          className="rounded-lg bg-accent px-4 h-9 leading-9 text-sm font-medium text-white whitespace-nowrap"
-        >
-          + Araç ekle
-        </Link>
-      </div>
+      <PageHeader
+        title="Panel"
+        description="Sermayen nerede, ne kazandırdı, ne kadar bekliyor."
+        action={
+          <Link href="/araclar/yeni" className="btn btn-primary">
+            + Araç ekle
+          </Link>
+        }
+      />
 
       <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
         <Stat
           label="Bağlı sermaye"
           value={formatTLShort(portfolio.tiedCapital)}
           sub={`${portfolio.inStockCount} araç stokta`}
+          tone="brand"
         />
         <Stat
           label="Bu ay kâr"
@@ -103,7 +96,7 @@ export default async function DashboardPage() {
           title="Stoktaki araçlar"
           hint="Beklenen kâr, istenen satış fiyatına göre hesaplanır"
           action={
-            <Link href="/araclar" className="text-xs text-accent">
+            <Link href="/araclar" className="text-xs text-brand">
               tümü →
             </Link>
           }
@@ -115,7 +108,7 @@ export default async function DashboardPage() {
           title="En verimli satışlar"
           hint="Günlük kâra göre — yavaş dönen yüksek kâr, hızlı dönen düşük kârdan iyi değildir"
           action={
-            <Link href="/araclar?filtre=satildi&sirala=gunluk_kar" className="text-xs text-accent">
+            <Link href="/araclar?filtre=satildi&sirala=gunluk_kar" className="text-xs text-brand">
               tümü →
             </Link>
           }
@@ -139,8 +132,8 @@ export default async function DashboardPage() {
                   <span className="w-36 shrink-0 text-muted">
                     {EXPENSE_LABELS[e.category as ExpenseCategory] ?? e.category}
                   </span>
-                  <div className="flex-1 h-2 rounded-full bg-surface-2 overflow-hidden">
-                    <div className="h-full bg-accent" style={{ width: `${pct}%` }} />
+                  <div className="flex-1 h-2 rounded-full bg-surface-3 overflow-hidden">
+                    <div className="h-full rounded-full bg-brand" style={{ width: `${pct}%` }} />
                   </div>
                   <span className="w-28 text-right tabular-nums">{formatTL(e.total)}</span>
                   <span className="w-16 text-right tabular-nums text-xs text-muted">
@@ -167,7 +160,7 @@ async function MarketHint() {
   return (
     <p className="text-xs text-muted">
       Piyasa analizi modülü kapalı — bağlı bir ilan kaynağı yok.{" "}
-      <Link href="/pazar/kaynaklar" className="text-accent">
+      <Link href="/pazar/kaynaklar" className="text-brand">
         Kaynak bağla
       </Link>{" "}
       dediğinde piyasadaki ilanları fırsat skoruyla izleyen ekranlar açılır.

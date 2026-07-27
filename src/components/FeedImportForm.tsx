@@ -7,7 +7,7 @@ import { formatNumber, formatTL } from "@/lib/format";
 const EMPTY: FeedState = { status: "idle" };
 
 const CONTROL =
-  "h-9 w-full rounded-lg border border-border bg-surface-2 px-2.5 text-sm text-text outline-none focus:border-accent";
+  "input";
 
 /**
  * Feed bağlama formu.
@@ -77,7 +77,7 @@ export function FeedImportForm() {
               name="xml"
               rows={8}
               placeholder="<ilanlar><ilan>...</ilan></ilanlar>"
-              className={`${CONTROL} h-auto py-2 font-mono text-xs`}
+              className="input h-auto py-2 font-mono text-xs"
             />
           </Field>
         )}
@@ -86,14 +86,14 @@ export function FeedImportForm() {
           <button
             formAction={runAnalyze}
             disabled={analyzing || importing}
-            className="h-9 rounded-lg border border-border px-4 text-sm font-medium hover:bg-surface-2 disabled:opacity-50"
+            className="btn btn-ghost"
           >
             {analyzing ? "Çözümleniyor…" : "1. Çözümle"}
           </button>
           <button
             formAction={runImport}
             disabled={analyzing || importing}
-            className="h-9 rounded-lg bg-accent px-4 text-sm font-medium text-white disabled:opacity-50"
+            className="btn btn-primary"
           >
             {importing ? "İçe aktarılıyor…" : "2. İçe aktar"}
           </button>

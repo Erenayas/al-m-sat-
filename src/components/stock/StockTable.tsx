@@ -1,22 +1,15 @@
 import Link from "next/link";
 import { BrandBadge } from "@/components/BrandBadge";
-import { Empty } from "@/components/ui";
+import { Badge, Empty } from "@/components/ui";
 import { STATUS_LABELS, type VehicleStatus } from "@/db/inventory";
 import { formatKm, formatPct, formatTL, formatTLShort } from "@/lib/format";
 import type { StockRow } from "@/lib/stock";
 
-const AGE_CLASS = {
-  taze: "text-muted",
-  normal: "text-muted",
-  yaslanan: "text-high",
-  olu: "text-high font-medium",
+const STATUS_TONE = {
+  stokta: "fair",
+  rezerve: "good",
+  satildi: "hot",
 } as const;
-
-const STATUS_CLASS: Record<string, string> = {
-  stokta: "bg-fair-bg text-fair",
-  rezerve: "bg-good-bg text-good",
-  satildi: "bg-hot-bg text-hot",
-};
 
 /**
  * Stok tablosu.
@@ -30,7 +23,7 @@ export function StockTable({ rows }: { rows: StockRow[] }) {
     return (
       <Empty>
         Bu listede araç yok.{" "}
-        <Link href="/araclar/yeni" className="text-accent">
+        <Link href="/araclar/yeni" className="text-brand font-medium">
           Araç ekle
         </Link>
       </Empty>
@@ -41,28 +34,32 @@ export function StockTable({ rows }: { rows: StockRow[] }) {
     <div className="overflow-x-auto">
       <table className="w-full text-sm">
         <thead>
-          <tr className="text-xs text-muted text-left border-b border-border">
-            <th className="font-medium px-3 py-2">Araç</th>
-            <th className="font-medium px-3 py-2 text-right">Alış</th>
-            <th className="font-medium px-3 py-2 text-right">Masraf</th>
-            <th className="font-medium px-3 py-2 text-right">Maliyet</th>
-            <th className="font-medium px-3 py-2 text-right">Satış / İstenen</th>
-            <th className="font-medium px-3 py-2 text-right">Kâr</th>
-            <th className="font-medium px-3 py-2 text-right">Günlük</th>
-            <th className="font-medium px-3 py-2 text-right">Süre</th>
-            <th className="font-medium px-3 py-2">Durum</th>
+          <tr>
+            <th className="th">Araç</th>
+            <th className="th text-right">Alış</th>
+            <th className="th text-right">Masraf</th>
+            <th className="th text-right">Maliyet</th>
+            <th className="th text-right">Satış / İstenen</th>
+            <th className="th text-right">Kâr</th>
+            <th className="th text-right">Günlük</th>
+            <th className="th text-right">Süre</th>
+            <th className="th">Durum</th>
           </tr>
         </thead>
         <tbody>
           {rows.map((r) => {
             const p = r.profit;
+            const aging = r.age.level === "olu" || r.age.level === "yaslanan";
             return (
-              <tr key={r.id} className="border-b border-border last:border-0 hover:bg-surface-2">
-                <td className="px-3 py-2.5">
-                  <Link href={`/araclar/${r.id}`} className="flex items-center gap-2.5 max-w-[22rem]">
-                    <BrandBadge make={r.make} size={30} />
+              <tr key={r.id} className="row-hover last:[&>td]:border-0">
+                <td className="td">
+                  <Link
+                    href={`/araclar/${r.id}`}
+                    className="flex items-center gap-3 max-w-[22rem] group"
+                  >
+                    <BrandBadge make={r.make} size={34} />
                     <span className="min-w-0">
-                      <span className="block font-medium truncate">
+                      <span className="block font-medium truncate group-hover:text-brand transition-colors">
                         {r.make} {r.model}
                         {r.trim ? ` ${r.trim}` : ""}
                       </span>
@@ -72,68 +69,68 @@ export function StockTable({ rows }: { rows: StockRow[] }) {
                     </span>
                   </Link>
                 </td>
-                <td className="px-3 py-2.5 text-right tabular-nums text-muted">
+
+                <td className="td text-right tabular-nums text-muted whitespace-nowrap">
                   {formatTLShort(r.purchasePrice)}
                 </td>
-                <td className="px-3 py-2.5 text-right tabular-nums">
+
+                <td className="td text-right tabular-nums whitespace-nowrap">
                   {r.expenseTotal > 0 ? (
                     <span title={`${r.expenseCount} kalem`}>{formatTLShort(r.expenseTotal)}</span>
                   ) : (
-                    <span className="text-muted">—</span>
+                    <span className="text-faint">—</span>
                   )}
                 </td>
-                <td className="px-3 py-2.5 text-right tabular-nums font-medium">
+
+                <td className="td text-right tabular-nums font-semibold whitespace-nowrap">
                   {formatTL(p.cost)}
                 </td>
-                <td className="px-3 py-2.5 text-right tabular-nums">
+
+                <td className="td text-right tabular-nums whitespace-nowrap">
                   {p.revenue == null ? (
-                    <span className="text-muted">—</span>
+                    <span className="text-faint">—</span>
                   ) : (
                     <span className={p.projected ? "text-muted" : ""}>
                       {formatTL(p.revenue)}
-                      {p.projected && <span className="text-xs"> (istenen)</span>}
+                      {p.projected && <span className="block text-xs text-faint">istenen</span>}
                     </span>
                   )}
                 </td>
-                <td className="px-3 py-2.5 text-right tabular-nums">
+
+                <td className="td text-right tabular-nums whitespace-nowrap">
                   {p.profit == null ? (
-                    <span className="text-muted">—</span>
+                    <span className="text-faint">—</span>
                   ) : (
-                    <span className={p.profit >= 0 ? "text-hot font-medium" : "text-high font-medium"}>
-                      {formatTL(p.profit)}
+                    <span className={p.profit >= 0 ? "text-hot" : "text-high"}>
+                      <span className="font-semibold">{formatTL(p.profit)}</span>
                       {p.returnPct != null && (
-                        <span className="block text-xs font-normal opacity-80">
-                          {formatPct(p.returnPct)}
-                        </span>
+                        <span className="block text-xs opacity-80">{formatPct(p.returnPct)}</span>
                       )}
                     </span>
                   )}
                 </td>
-                <td className="px-3 py-2.5 text-right tabular-nums">
+
+                <td className="td text-right tabular-nums whitespace-nowrap">
                   {p.profitPerDay == null ? (
-                    <span className="text-muted">—</span>
+                    <span className="text-faint">—</span>
                   ) : (
                     <span className={p.profitPerDay >= 0 ? "" : "text-high"}>
                       {formatTLShort(p.profitPerDay)}
                     </span>
                   )}
                 </td>
-                <td className={`px-3 py-2.5 text-right tabular-nums ${AGE_CLASS[r.age.level]}`}>
-                  {p.daysHeld} gün
-                  {r.age.level !== "taze" && r.age.level !== "normal" && (
-                    <span className="block text-xs">{r.age.label}</span>
-                  )}
+
+                <td className="td text-right tabular-nums whitespace-nowrap">
+                  <span className={aging ? "text-high font-medium" : ""}>{p.daysHeld} gün</span>
+                  {aging && <span className="block text-xs text-high">{r.age.label}</span>}
                 </td>
-                <td className="px-3 py-2.5">
-                  <span
-                    className={`inline-block rounded-md px-2 py-0.5 text-xs font-medium ${
-                      STATUS_CLASS[r.status] ?? "bg-fair-bg text-fair"
-                    }`}
-                  >
+
+                <td className="td whitespace-nowrap">
+                  <Badge tone={STATUS_TONE[r.status as VehicleStatus] ?? "fair"}>
                     {STATUS_LABELS[r.status as VehicleStatus] ?? r.status}
-                  </span>
+                  </Badge>
                   {r.outstanding != null && r.outstanding > 0 && (
-                    <span className="block text-xs text-high mt-0.5">
+                    <span className="block text-xs text-high mt-1">
                       {formatTLShort(r.outstanding)} bakiye
                     </span>
                   )}

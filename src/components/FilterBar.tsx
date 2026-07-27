@@ -110,7 +110,7 @@ export function FilterBar({ options }: { options: FilterOptions }) {
         {hasFilters && (
           <button
             onClick={() => startTransition(() => router.replace("/pazar/ilanlar", { scroll: false }))}
-            className="h-9 rounded-lg border border-border px-3 text-sm text-muted hover:text-text"
+            className="btn btn-ghost"
           >
             Filtreleri temizle
           </button>
@@ -130,7 +130,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 const CONTROL =
-  "h-9 rounded-lg border border-border bg-surface-2 px-2 text-sm text-text outline-none focus:border-accent";
+  "h-9 rounded-lg border border-border bg-surface-2 px-2 text-sm text-text outline-none focus:border-brand";
 
 function Select({
   label,
@@ -155,7 +155,7 @@ function Select({
         value={value}
         disabled={disabled}
         onChange={(e) => onChange(e.target.value)}
-        className={`${CONTROL} min-w-36 disabled:opacity-50`}
+        className="select min-w-36"
       >
         {allLabel && <option value="">{allLabel}</option>}
         {options.map((o) => (
@@ -190,7 +190,7 @@ function Num({
         // Her tuşta yeniden sorgu atmamak için değişiklik alandan çıkınca uygulanıyor
         onBlur={(e) => onChange(e.target.value)}
         onKeyDown={(e) => e.key === "Enter" && onChange((e.target as HTMLInputElement).value)}
-        className={`${CONTROL} ${wide ? "w-32" : "w-24"}`}
+        className={`input ${wide ? "!w-32" : "!w-24"}`}
       />
     </Field>
   );

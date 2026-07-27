@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Card, Empty } from "@/components/ui";
+import { Card, Empty, PageHeader } from "@/components/ui";
 import { formatDate, formatNumber } from "@/lib/format";
 import { listContacts } from "@/lib/stock";
 import { requireSession } from "@/lib/auth";
@@ -24,22 +24,19 @@ export default async function ContactsPage({
 
   return (
     <div className="space-y-4">
-      <div>
-        <h1 className="text-xl font-semibold">Cariler</h1>
-        <p className="text-sm text-muted mt-1">
-          Araç alırken ve satarken girdiğin kişiler burada birikiyor. Satırın
-          üstüne basınca o kişiyle olan tüm araç geçmişi açılıyor.
-        </p>
-      </div>
+      <PageHeader
+        title="Cariler"
+        description="Araç alırken ve satarken girdiğin kişiler burada birikiyor. Satıra basınca o kişiyle olan tüm araç geçmişi açılıyor."
+      />
 
       <form action="/cariler" className="flex gap-2">
         <input
           name="q"
           defaultValue={q ?? ""}
           placeholder="İsim ya da telefon ara"
-          className="h-9 w-full sm:w-72 rounded-lg border border-border bg-surface-2 px-2.5 text-sm outline-none focus:border-accent"
+          className="input sm:!w-72"
         />
-        <button className="h-9 rounded-lg border border-border px-3 text-sm hover:bg-surface-2">
+        <button className="btn btn-ghost">
           Ara
         </button>
       </form>
@@ -55,19 +52,19 @@ export default async function ContactsPage({
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-xs text-muted text-left border-b border-border">
-                  <th className="font-medium px-3 py-2">İsim</th>
-                  <th className="font-medium px-3 py-2">Araçlar</th>
-                  <th className="font-medium px-3 py-2">Telefon</th>
-                  <th className="font-medium px-3 py-2 text-right">Alınan</th>
-                  <th className="font-medium px-3 py-2 text-right">Satılan</th>
-                  <th className="font-medium px-3 py-2 text-right">Son işlem</th>
+                <tr>
+                  <th className="th">İsim</th>
+                  <th className="th">Araçlar</th>
+                  <th className="th">Telefon</th>
+                  <th className="th text-right">Alınan</th>
+                  <th className="th text-right">Satılan</th>
+                  <th className="th text-right">Son işlem</th>
                 </tr>
               </thead>
               <tbody>
                 {rows.map((c) => (
-                  <tr key={c.id} className="border-b border-border last:border-0 hover:bg-surface-2">
-                    <td className="px-3 py-2.5">
+                  <tr key={c.id} className="row-hover last:[&>td]:border-0">
+                    <td className="td">
                       <Link href={`/cariler/${c.id}`} className="block">
                         <span className="font-medium">{c.name}</span>
                         <span className="block text-xs text-muted">
@@ -75,7 +72,7 @@ export default async function ContactsPage({
                         </span>
                       </Link>
                     </td>
-                    <td className="px-3 py-2.5 max-w-[24rem]">
+                    <td className="td max-w-[24rem]">
                       <Link href={`/cariler/${c.id}`} className="block">
                         {c.recentVehicles ? (
                           <span className="block truncate">{c.recentVehicles}</span>
@@ -84,22 +81,22 @@ export default async function ContactsPage({
                         )}
                       </Link>
                     </td>
-                    <td className="px-3 py-2.5">
+                    <td className="td">
                       {c.phone ? (
-                        <a href={`tel:${c.phone.replace(/\s/g, "")}`} className="text-accent">
+                        <a href={`tel:${c.phone.replace(/\s/g, "")}`} className="text-brand">
                           {c.phone}
                         </a>
                       ) : (
                         <span className="text-muted">—</span>
                       )}
                     </td>
-                    <td className="px-3 py-2.5 text-right tabular-nums">
+                    <td className="td text-right tabular-nums">
                       {formatNumber(c.boughtCount)}
                     </td>
-                    <td className="px-3 py-2.5 text-right tabular-nums">
+                    <td className="td text-right tabular-nums">
                       {formatNumber(c.soldCount)}
                     </td>
-                    <td className="px-3 py-2.5 text-right text-xs text-muted whitespace-nowrap">
+                    <td className="td text-right text-xs text-muted whitespace-nowrap">
                       {c.lastActivity ? formatDate(c.lastActivity) : "—"}
                     </td>
                   </tr>

@@ -38,7 +38,7 @@ export default async function VehicleDetailPage({
     <div className="space-y-6">
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <Link href="/araclar" className="text-xs text-accent">
+          <Link href="/araclar" className="text-xs text-brand">
             ← araçlar
           </Link>
           <h1 className="text-xl font-semibold mt-1">

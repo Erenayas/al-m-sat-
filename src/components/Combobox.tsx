@@ -152,9 +152,7 @@ export function Combobox({
             if (allowFree) onChange(e.target.value);
           }}
           onKeyDown={onKeyDown}
-          className={`h-9 w-full rounded-lg border border-border bg-surface-2 pr-8 text-sm text-text outline-none focus:border-accent disabled:opacity-50 ${
-            showBrandBadge && value ? "pl-9" : "pl-2.5"
-          }`}
+          className={`input !pr-8 ${showBrandBadge && value ? "!pl-10" : ""}`}
         />
         <span className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-muted text-xs">
           ▾
@@ -166,7 +164,8 @@ export function Combobox({
           ref={listRef}
           id={`${inputId}-list`}
           role="listbox"
-          className="absolute z-50 mt-1 max-h-72 w-full overflow-y-auto rounded-lg border border-border bg-surface shadow-lg py-1"
+          className="absolute z-50 mt-1.5 max-h-72 w-full overflow-y-auto rounded-xl border border-border bg-surface py-1.5"
+          style={{ boxShadow: "var(--shadow-lg)" }}
         >
           {results.length === 0 && !typed && (
             <li className="px-3 py-2 text-sm text-muted">Seçenek yok</li>
@@ -182,13 +181,13 @@ export function Combobox({
                 // Tıklamada odak kaybı yaşanmasın diye mousedown'da engelleniyor
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => commit(o.value)}
-                className={`flex w-full items-center gap-2 px-3 py-2 text-left text-sm ${
+                className={`flex w-full items-center gap-2.5 px-3 py-2 text-left text-sm transition-colors ${
                   i === active ? "bg-surface-2" : ""
-                } ${o.value === value ? "font-medium" : ""}`}
+                } ${o.value === value ? "font-medium text-brand" : ""}`}
               >
                 {showBrandBadge && <BrandBadge make={o.value} size={22} />}
                 <span className="truncate">{o.value}</span>
-                {o.value === value && <span className="ml-auto text-accent text-xs">✓</span>}
+                {o.value === value && <span className="ml-auto text-brand text-xs">✓</span>}
               </button>
             </li>
           ))}

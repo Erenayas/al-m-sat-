@@ -65,7 +65,7 @@ export default async function DashboardPage() {
         title="Anlık akış — son 24 saat"
         hint="Feed'e yeni düşen ilanlar, fırsat skoruna göre sıralı"
         action={
-          <Link href="/pazar/ilanlar?sort=newest" className="text-xs text-accent">
+          <Link href="/pazar/ilanlar?sort=newest" className="text-xs text-brand">
             tümü →
           </Link>
         }
@@ -82,7 +82,7 @@ export default async function DashboardPage() {
           title="En iyi fırsatlar"
           hint="Kohort medyanının en altındaki, güveni yeterli ilanlar"
           action={
-            <Link href="/pazar/ilanlar?minDealScore=10" className="text-xs text-accent">
+            <Link href="/pazar/ilanlar?minDealScore=10" className="text-xs text-brand">
               tümü →
             </Link>
           }
@@ -97,7 +97,7 @@ export default async function DashboardPage() {
           title="Fiyat kıranlar"
           hint="Son 7 günde indirim yapanlar — pazarlık payının en net sinyali"
           action={
-            <Link href="/pazar/ilanlar?sort=pressure" className="text-xs text-accent">
+            <Link href="/pazar/ilanlar?sort=pressure" className="text-xs text-brand">
               tümü →
             </Link>
           }

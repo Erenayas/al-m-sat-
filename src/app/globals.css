@@ -1,47 +1,80 @@
 @import "tailwindcss";
 
 /*
-  Panel yoğun bir veri arayüzü: renk, dekorasyon değil sinyal taşıyor.
-  Fırsat/piyasa/pahalı üçlüsü tek bir renk skalasına bağlı ve hem açık
-  hem koyu temada aynı anlamı koruyacak kontrastta tutuluyor.
+  Renk sistemi.
+
+  Panel yoğun bir veri arayüzü: renk dekorasyon değil sinyal taşıyor.
+  Tek bir vurgu rengi (marka mavisi) ve üç anlam rengi var — fırsat/kazanç,
+  uyarı, zarar. Yüzeyler üç kademe: sayfa zemini, kart, kart içi.
+
+  Koyu tema ayrı bir palet değil, aynı sistemin karşılığı; her jeton iki
+  temada da aynı anlamı taşıyacak kontrastta seçildi.
 */
 :root {
-  --bg: #f6f7f9;
+  --bg: #f6f7fb;
   --surface: #ffffff;
-  --surface-2: #f0f2f5;
-  --border: #dfe3e8;
-  --text: #14171c;
-  --text-muted: #61697a;
+  --surface-2: #f1f3f9;
+  --surface-3: #e8ebf3;
+  --border: #e2e6f0;
+  --border-strong: #cfd5e4;
+  --text: #0f1729;
+  --text-muted: #667085;
+  --text-faint: #98a2b3;
+
+  --brand: #2f5bea;
+  --brand-strong: #1e42c4;
+  --brand-soft: #e8eeff;
+  --on-brand: #ffffff;
 
   --hot: #047857;
-  --hot-bg: #d5f2e5;
-  --good: #0f766e;
-  --good-bg: #d9f0ee;
-  --fair: #6b7280;
-  --fair-bg: #eceef1;
-  --high: #b91c1c;
-  --high-bg: #fce0e0;
-  --accent: #1d4ed8;
+  --hot-bg: #d9f2e6;
+  --good: #0e7490;
+  --good-bg: #d9eff5;
+  --fair: #64748b;
+  --fair-bg: #eceef3;
+  --high: #c2261f;
+  --high-bg: #fce4e2;
+  --warn: #b45309;
+  --warn-bg: #fdf0d9;
+
+  --shadow-sm: 0 1px 2px rgb(16 23 41 / 0.05);
+  --shadow: 0 1px 3px rgb(16 23 41 / 0.07), 0 6px 16px -6px rgb(16 23 41 / 0.08);
+  --shadow-lg: 0 12px 32px -8px rgb(16 23 41 / 0.18);
+  --ring: 0 0 0 3px rgb(47 91 234 / 0.16);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #0b0d11;
-    --surface: #14171d;
-    --surface-2: #1b1f27;
-    --border: #262b34;
-    --text: #e8eaed;
-    --text-muted: #99a1b0;
+    --bg: #0a0e18;
+    --surface: #121826;
+    --surface-2: #192133;
+    --surface-3: #222c42;
+    --border: #232d44;
+    --border-strong: #33405e;
+    --text: #e8ecf5;
+    --text-muted: #94a1b8;
+    --text-faint: #6b7893;
+
+    --brand: #6b91ff;
+    --brand-strong: #8aa8ff;
+    --brand-soft: #1a2444;
+    --on-brand: #0a0e18;
 
     --hot: #34d399;
-    --hot-bg: #0d3b2c;
-    --good: #5eead4;
-    --good-bg: #0d3733;
-    --fair: #9aa3b2;
-    --fair-bg: #23272f;
-    --high: #f87171;
-    --high-bg: #3d1618;
-    --accent: #7aa2ff;
+    --hot-bg: #0e3a2c;
+    --good: #38bdf8;
+    --good-bg: #0d2f42;
+    --fair: #94a1b8;
+    --fair-bg: #212a3d;
+    --high: #fb7185;
+    --high-bg: #3d1620;
+    --warn: #fbbf24;
+    --warn-bg: #3a2a10;
+
+    --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.3);
+    --shadow: 0 2px 4px rgb(0 0 0 / 0.3), 0 8px 24px -8px rgb(0 0 0 / 0.5);
+    --shadow-lg: 0 16px 40px -12px rgb(0 0 0 / 0.6);
+    --ring: 0 0 0 3px rgb(107 145 255 / 0.25);
   }
 }
 
@@ -49,9 +82,16 @@
   --color-bg: var(--bg);
   --color-surface: var(--surface);
   --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
   --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
   --color-text: var(--text);
   --color-muted: var(--text-muted);
+  --color-faint: var(--text-faint);
+  --color-brand: var(--brand);
+  --color-brand-strong: var(--brand-strong);
+  --color-brand-soft: var(--brand-soft);
+  --color-accent: var(--brand);
   --color-hot: var(--hot);
   --color-hot-bg: var(--hot-bg);
   --color-good: var(--good);
@@ -60,7 +100,8 @@
   --color-fair-bg: var(--fair-bg);
   --color-high: var(--high);
   --color-high-bg: var(--high-bg);
-  --color-accent: var(--accent);
+  --color-warn: var(--warn);
+  --color-warn-bg: var(--warn-bg);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -68,9 +109,184 @@
 body {
   background: var(--bg);
   color: var(--text);
+  -webkit-font-smoothing: antialiased;
 }
 
 /* Sayı kolonları hizalansın diye tablo genelinde tabular rakamlar */
 table {
   font-variant-numeric: tabular-nums;
+}
+
+/* ---------------------------------------------------------------------------
+   Bileşen sınıfları.
+   Uzun Tailwind dizilerini her dosyada tekrarlamak yerine tek yerde
+   tanımlanıyor: görsel dil tutarlı kalıyor ve bir düzeltme her yeri düzeltiyor.
+   --------------------------------------------------------------------------- */
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.card-hover {
+  transition: box-shadow 0.18s ease, transform 0.18s ease, border-color 0.18s ease;
+}
+.card-hover:hover {
+  box-shadow: var(--shadow);
+  border-color: var(--border-strong);
+}
+
+.input,
+.select {
+  height: 2.375rem;
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  padding: 0 0.7rem;
+  font-size: 0.875rem;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.input::placeholder {
+  color: var(--text-faint);
+}
+.input:focus,
+.select:focus {
+  border-color: var(--brand);
+  box-shadow: var(--ring);
+}
+.input:disabled,
+.select:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  height: 2.375rem;
+  padding: 0 1rem;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease,
+    transform 0.08s ease;
+}
+.btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: var(--brand);
+  color: var(--on-brand);
+  border: 1px solid transparent;
+  box-shadow: var(--shadow-sm);
+}
+.btn-primary:hover:not(:disabled) {
+  background: var(--brand-strong);
+}
+.btn-primary:focus-visible {
+  box-shadow: var(--ring);
+}
+
+.btn-ghost {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+.btn-ghost:hover:not(:disabled) {
+  background: var(--surface-2);
+  border-color: var(--border-strong);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 999px;
+  padding: 0.15rem 0.55rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  white-space: nowrap;
+  line-height: 1.4;
+}
+
+/* Tablo satırı vurgusu; kenarlıkla değil zeminle yapılıyor ki tablo hafif kalsın */
+.row-hover {
+  transition: background 0.12s ease;
+}
+.row-hover:hover {
+  background: var(--surface-2);
+}
+
+.th {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  padding: 0.7rem 0.85rem;
+  text-align: left;
+  white-space: nowrap;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+}
+
+.td {
+  padding: 0.7rem 0.85rem;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--border);
+}
+
+/* Yan menü bağlantıları */
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.55rem 0.7rem;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.nav-link:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+.nav-link[data-active="true"] {
+  background: var(--brand-soft);
+  color: var(--brand);
+  font-weight: 600;
+}
+
+/* İnce kaydırma çubuğu — yoğun tablolarda görsel gürültüyü azaltıyor */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
 }

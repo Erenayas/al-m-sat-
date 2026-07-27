@@ -5,7 +5,7 @@ import { login } from "@/app/giris/actions";
 import { IDLE } from "@/lib/action-state";
 
 const CONTROL =
-  "h-10 w-full rounded-lg border border-border bg-surface-2 px-3 text-sm text-text outline-none focus:border-accent";
+  "input";
 
 export function LoginForm({ devam }: { devam?: string }) {
   const [state, action, pending] = useActionState(login, IDLE);
@@ -44,7 +44,7 @@ export function LoginForm({ devam }: { devam?: string }) {
       <button
         type="submit"
         disabled={pending}
-        className="h-10 w-full rounded-lg bg-accent text-sm font-medium text-white disabled:opacity-50"
+        className="btn btn-primary w-full !h-10"
       >
         {pending ? "Giriş yapılıyor…" : "Giriş yap"}
       </button>

@@ -196,7 +196,7 @@ export function SourceLink({ url }: { url: string | null }) {
       target="_blank"
       rel="noreferrer"
       title="İlanı kaynağında aç"
-      className="text-accent whitespace-nowrap hover:underline"
+      className="text-brand whitespace-nowrap hover:underline"
     >
       ilana git ↗
     </a>

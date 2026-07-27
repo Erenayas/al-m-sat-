@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { StockTable } from "@/components/stock/StockTable";
-import { Card } from "@/components/ui";
+import { Card, PageHeader } from "@/components/ui";
 import { formatNumber, formatTL } from "@/lib/format";
 import {
   listStock,
@@ -61,30 +61,29 @@ export default async function VehiclesPage({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between gap-4">
-        <div>
-          <h1 className="text-xl font-semibold">Araçlar</h1>
-          <p className="text-sm text-muted mt-1">
-            {formatNumber(rows.length)} araç · toplam maliyet {formatTL(totalCost)}
-            {filter === "satildi" && ` · toplam kâr ${formatTL(totalProfit)}`}
-          </p>
-        </div>
-        <Link
-          href="/araclar/yeni"
-          className="rounded-lg bg-accent px-4 h-9 leading-9 text-sm font-medium text-white whitespace-nowrap"
-        >
-          + Araç ekle
-        </Link>
-      </div>
+      <PageHeader
+        title="Araçlar"
+        description={
+          `${formatNumber(rows.length)} araç · toplam maliyet ${formatTL(totalCost)}` +
+          (filter === "satildi" ? ` · toplam kâr ${formatTL(totalProfit)}` : "")
+        }
+        action={
+          <Link href="/araclar/yeni" className="btn btn-primary">
+            + Araç ekle
+          </Link>
+        }
+      />
 
-      <div className="rounded-xl border border-border bg-surface p-3 flex flex-wrap items-center gap-3">
+      <div className="card p-3 flex flex-wrap items-center gap-3">
         <div className="flex flex-wrap gap-1">
           {FILTERS.map((f) => (
             <Link
               key={f.key}
               href={qs({ filtre: f.key })}
-              className={`rounded-lg px-3 py-1.5 text-sm ${
-                f.key === filter ? "bg-surface-2 font-medium" : "text-muted hover:text-text"
+              className={`rounded-lg px-3 py-1.5 text-sm transition-colors ${
+                f.key === filter
+                  ? "bg-brand-soft text-brand font-semibold"
+                  : "text-muted hover:text-text hover:bg-surface-2"
               }`}
             >
               {f.label}
@@ -98,8 +97,8 @@ export default async function VehiclesPage({
             <Link
               key={s}
               href={qs({ sirala: s })}
-              className={`rounded-lg px-2.5 py-1.5 text-xs ${
-                s === sort ? "bg-surface-2 font-medium" : "text-muted hover:text-text"
+              className={`rounded-lg px-2.5 py-1.5 text-xs transition-colors ${
+                s === sort ? "bg-surface-2 font-semibold text-text" : "text-muted hover:text-text"
               }`}
             >
               {STOCK_SORT_LABELS[s]}
@@ -115,9 +114,9 @@ export default async function VehiclesPage({
             name="q"
             defaultValue={search ?? ""}
             placeholder="Plaka, marka, model ara"
-            className="h-9 flex-1 sm:w-56 rounded-lg border border-border bg-surface-2 px-2.5 text-sm outline-none focus:border-accent"
+            className="input flex-1 sm:!w-56"
           />
-          <button className="h-9 rounded-lg border border-border px-3 text-sm hover:bg-surface-2">
+          <button className="btn btn-ghost">
             Ara
           </button>
         </form>

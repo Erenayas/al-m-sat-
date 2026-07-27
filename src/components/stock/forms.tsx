@@ -26,7 +26,7 @@ import {
 } from "@/db/inventory";
 
 const CONTROL =
-  "h-9 w-full rounded-lg border border-border bg-surface-2 px-2.5 text-sm text-text outline-none focus:border-accent";
+  "input";
 
 /** Bugünün tarihi, date input'unun beklediği biçimde */
 function today(): string {
@@ -253,7 +253,7 @@ export function VehicleForm() {
       <button
         type="submit"
         disabled={pending}
-        className="h-10 rounded-lg bg-accent px-5 text-sm font-medium text-white disabled:opacity-50"
+        className="btn btn-primary !h-10 !px-5"
       >
         {pending ? "Kaydediliyor…" : "Aracı stoğa ekle"}
       </button>
@@ -295,7 +295,7 @@ export function ExpenseForm({ vehicleId }: { vehicleId: number }) {
       <button
         type="submit"
         disabled={pending}
-        className="h-9 rounded-lg border border-border px-4 text-sm font-medium hover:bg-surface-2 disabled:opacity-50"
+        className="btn btn-ghost"
       >
         {pending ? "Ekleniyor…" : "Masraf ekle"}
       </button>
@@ -345,7 +345,7 @@ export function SaleForm({ vehicleId, suggested }: { vehicleId: number; suggeste
       <button
         type="submit"
         disabled={pending}
-        className="h-9 rounded-lg bg-accent px-4 text-sm font-medium text-white disabled:opacity-50"
+        className="btn btn-primary"
       >
         {pending ? "Kaydediliyor…" : "Satışı kaydet"}
       </button>
@@ -388,7 +388,7 @@ export function PaymentForm({ vehicleId }: { vehicleId: number }) {
       <button
         type="submit"
         disabled={pending}
-        className="h-9 rounded-lg border border-border px-4 text-sm font-medium hover:bg-surface-2 disabled:opacity-50"
+        className="btn btn-ghost"
       >
         {pending ? "Ekleniyor…" : "Hareket ekle"}
       </button>

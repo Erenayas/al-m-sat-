@@ -37,7 +37,7 @@ export default async function ContactDetailPage({
   return (
     <div className="space-y-6">
       <div>
-        <Link href="/cariler" className="text-xs text-accent">
+        <Link href="/cariler" className="text-xs text-brand">
           ← cariler
         </Link>
         <h1 className="text-xl font-semibold mt-1">{contact.name}</h1>
@@ -53,7 +53,7 @@ export default async function ContactDetailPage({
         {contact.phone && (
           <a
             href={`tel:${contact.phone.replace(/\s/g, "")}`}
-            className="inline-block mt-2 rounded-lg border border-border px-3 py-1.5 text-sm text-accent"
+            className="inline-block mt-2 rounded-lg border border-border px-3 py-1.5 text-sm text-brand"
           >
             {contact.phone} · ara
           </a>

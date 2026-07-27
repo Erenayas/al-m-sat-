@@ -97,13 +97,14 @@ function CompareTray() {
 
   return (
     <div className="fixed inset-x-0 bottom-0 z-50 flex justify-center px-4 pb-4 pointer-events-none">
-      <div className="pointer-events-auto flex items-center gap-3 rounded-full border border-border bg-surface px-4 py-2.5 shadow-lg">
+      <div className="pointer-events-auto flex items-center gap-3 rounded-full border border-border bg-surface px-4 py-2.5"
+        style={{ boxShadow: "var(--shadow-lg)" }}>
         <span className="text-sm">
           <strong>{ids.length}</strong> araç seçildi
         </span>
         <Link
           href={`/pazar/karsilastir?ids=${ids.join(",")}`}
-          className="rounded-full bg-accent px-4 py-1.5 text-sm font-medium text-white"
+          className="rounded-full bg-brand px-4 py-1.5 text-sm font-medium text-[var(--on-brand)]"
         >
           Karşılaştır
         </Link>

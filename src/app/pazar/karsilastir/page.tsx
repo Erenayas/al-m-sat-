@@ -164,7 +164,7 @@ export default async function ComparePage({
       <Card title="Karşılaştırma">
         <Empty>
           Karşılaştırmak için{" "}
-          <Link href="/pazar/ilanlar" className="text-accent">
+          <Link href="/pazar/ilanlar" className="text-brand">
             ilanlar
           </Link>{" "}
           sayfasından araç seç.
