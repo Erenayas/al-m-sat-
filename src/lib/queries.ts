@@ -279,6 +279,18 @@ export async function getCohortPeers(listingId: number, limit = 8): Promise<List
   );
 }
 
+/**
+ * Piyasa modülü kullanılabilir mi.
+ *
+ * Bağlı kaynak yokken /pazar ekranları tamamen boş görünüyor ve ürünü
+ * bozuk gösteriyor. Bu yüzden sekme ancak veri varken açılıyor.
+ */
+export async function hasMarketData(): Promise<boolean> {
+  const [row] = await sql<{ n: number }[]>`
+    select count(*)::int as n from sources where is_active`;
+  return (row?.n ?? 0) > 0;
+}
+
 export interface SourceStatus {
   code: string;
   name: string;

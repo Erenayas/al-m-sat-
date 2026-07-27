@@ -1,5 +1,6 @@
+import Link from "next/link";
 import { Card, Empty } from "@/components/ui";
-import { formatNumber } from "@/lib/format";
+import { formatDate, formatNumber } from "@/lib/format";
 import { listContacts } from "@/lib/stock";
 import { requireSession } from "@/lib/auth";
 
@@ -26,8 +27,8 @@ export default async function ContactsPage({
       <div>
         <h1 className="text-xl font-semibold">Cariler</h1>
         <p className="text-sm text-muted mt-1">
-          Araç alırken ve satarken girdiğin kişiler burada birikiyor —
-          kimden kaç araç aldın, kime kaç araç sattın.
+          Araç alırken ve satarken girdiğin kişiler burada birikiyor. Satırın
+          üstüne basınca o kişiyle olan tüm araç geçmişi açılıyor.
         </p>
       </div>
 
@@ -56,18 +57,32 @@ export default async function ContactsPage({
               <thead>
                 <tr className="text-xs text-muted text-left border-b border-border">
                   <th className="font-medium px-3 py-2">İsim</th>
+                  <th className="font-medium px-3 py-2">Araçlar</th>
                   <th className="font-medium px-3 py-2">Telefon</th>
-                  <th className="font-medium px-3 py-2">Tip</th>
                   <th className="font-medium px-3 py-2 text-right">Alınan</th>
                   <th className="font-medium px-3 py-2 text-right">Satılan</th>
+                  <th className="font-medium px-3 py-2 text-right">Son işlem</th>
                 </tr>
               </thead>
               <tbody>
                 {rows.map((c) => (
                   <tr key={c.id} className="border-b border-border last:border-0 hover:bg-surface-2">
-                    <td className="px-3 py-2.5 font-medium">
-                      {c.name}
-                      {c.note && <span className="block text-xs text-muted">{c.note}</span>}
+                    <td className="px-3 py-2.5">
+                      <Link href={`/cariler/${c.id}`} className="block">
+                        <span className="font-medium">{c.name}</span>
+                        <span className="block text-xs text-muted">
+                          {[KIND_LABELS[c.kind] ?? c.kind, c.city].filter(Boolean).join(" · ")}
+                        </span>
+                      </Link>
+                    </td>
+                    <td className="px-3 py-2.5 max-w-[24rem]">
+                      <Link href={`/cariler/${c.id}`} className="block">
+                        {c.recentVehicles ? (
+                          <span className="block truncate">{c.recentVehicles}</span>
+                        ) : (
+                          <span className="text-muted">—</span>
+                        )}
+                      </Link>
                     </td>
                     <td className="px-3 py-2.5">
                       {c.phone ? (
@@ -78,12 +93,14 @@ export default async function ContactsPage({
                         <span className="text-muted">—</span>
                       )}
                     </td>
-                    <td className="px-3 py-2.5 text-muted">{KIND_LABELS[c.kind] ?? c.kind}</td>
                     <td className="px-3 py-2.5 text-right tabular-nums">
                       {formatNumber(c.boughtCount)}
                     </td>
                     <td className="px-3 py-2.5 text-right tabular-nums">
                       {formatNumber(c.soldCount)}
+                    </td>
+                    <td className="px-3 py-2.5 text-right text-xs text-muted whitespace-nowrap">
+                      {c.lastActivity ? formatDate(c.lastActivity) : "—"}
                     </td>
                   </tr>
                 ))}

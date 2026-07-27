@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { logout } from "@/app/giris/actions";
 import { CompareProvider } from "@/components/CompareContext";
 import { getSession } from "@/lib/auth";
+import { hasMarketData } from "@/lib/queries";
 import "./globals.css";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
@@ -24,13 +25,16 @@ const NAV = [
   { href: "/", label: "Panel" },
   { href: "/araclar", label: "Araçlar" },
   { href: "/cariler", label: "Cariler" },
-  { href: "/pazar", label: "Pazar" },
 ];
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   // Burada `requireSession` kullanılmıyor: giriş sayfası da bu düzeni kullanıyor
   // ve yönlendirme döngüsüne girerdi. Yetkilendirme her sayfanın kendi içinde.
   const session = await getSession();
+
+  // Piyasa sekmesi ancak bağlı kaynak varken görünüyor; boş bir sekme
+  // ürünü eksik gösteriyor ve müşteriye gösterirken en son istenen şey bu.
+  const nav = session && (await hasMarketData()) ? [...NAV, { href: "/pazar", label: "Pazar" }] : NAV;
 
   return (
     <html
@@ -45,7 +49,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                 Oto Panel
               </Link>
               <nav className="flex items-center gap-1 overflow-x-auto">
-                {NAV.map((item) => (
+                {nav.map((item) => (
                   <Link
                     key={item.href}
                     href={item.href}

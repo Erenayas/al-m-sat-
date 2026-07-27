@@ -6,6 +6,7 @@ import { DEAD_STOCK_DAYS } from "@/domain/profit";
 import { formatDays, formatNumber, formatPct, formatTL, formatTLShort } from "@/lib/format";
 import { getExpenseTotals, getPortfolio, listStock, sortStock } from "@/lib/stock";
 import { requireSession } from "@/lib/auth";
+import { hasMarketData } from "@/lib/queries";
 
 export const dynamic = "force-dynamic";
 
@@ -41,6 +42,7 @@ export default async function DashboardPage() {
             </Link>
           </div>
         </Card>
+        <MarketHint />
       </div>
     );
   }
@@ -150,6 +152,25 @@ export default async function DashboardPage() {
           </div>
         )}
       </Card>
+
+      <MarketHint />
     </div>
+  );
+}
+
+/**
+ * Piyasa modülü sekmesi bağlı kaynak yokken gizleniyor; bağlama yolunun
+ * tamamen kaybolmaması için giriş noktası burada duruyor.
+ */
+async function MarketHint() {
+  if (await hasMarketData()) return null;
+  return (
+    <p className="text-xs text-muted">
+      Piyasa analizi modülü kapalı — bağlı bir ilan kaynağı yok.{" "}
+      <Link href="/pazar/kaynaklar" className="text-accent">
+        Kaynak bağla
+      </Link>{" "}
+      dediğinde piyasadaki ilanları fırsat skoruyla izleyen ekranlar açılır.
+    </p>
   );
 }

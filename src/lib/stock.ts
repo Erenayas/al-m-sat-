@@ -269,6 +269,9 @@ export interface ContactRow {
   note: string | null;
   boughtCount: number;
   soldCount: number;
+  /** Son işlem gören araçlar — isim tek başına kimseyi hatırlatmıyor, araç hatırlatıyor */
+  recentVehicles: string | null;
+  lastActivity: string | null;
 }
 
 export async function listContacts(tenantId: number, search?: string): Promise<ContactRow[]> {
@@ -278,11 +281,70 @@ export async function listContacts(tenantId: number, search?: string): Promise<C
       (select count(*) from stock_vehicles
         where purchased_from_id = c.id and tenant_id = ${tenantId})::int as "boughtCount",
       (select count(*) from stock_vehicles
-        where sold_to_id = c.id and tenant_id = ${tenantId})::int        as "soldCount"
+        where sold_to_id = c.id and tenant_id = ${tenantId})::int        as "soldCount",
+      recent.labels as "recentVehicles",
+      recent.last_at::text as "lastActivity"
     from contacts c
+    left join lateral (
+      select string_agg(x.label, ', ' order by x.d desc) as labels, max(x.d) as last_at
+      from (
+        select sv.make || ' ' || sv.model ||
+               coalesce(' ' || sv.year::text, '')            as label,
+               coalesce(sv.sale_date, sv.purchase_date)      as d
+        from stock_vehicles sv
+        where sv.tenant_id = ${tenantId}
+          and (sv.purchased_from_id = c.id or sv.sold_to_id = c.id)
+        order by coalesce(sv.sale_date, sv.purchase_date) desc
+        limit 3
+      ) x
+    ) recent on true
     where c.tenant_id = ${tenantId}
       ${term ? sql`and (c.name ilike ${term} or c.phone ilike ${term})` : sql``}
-    order by c.name`;
+    order by recent.last_at desc nulls last, c.name`;
+}
+
+export interface ContactDetail extends ContactRow {
+  createdAt: Date;
+}
+
+export async function getContact(
+  tenantId: number,
+  id: number,
+): Promise<ContactDetail | null> {
+  const [row] = await sql<ContactDetail[]>`
+    select c.id, c.name, c.phone, c.city, c.kind, c.note, c.created_at as "createdAt",
+      (select count(*) from stock_vehicles
+        where purchased_from_id = c.id and tenant_id = ${tenantId})::int as "boughtCount",
+      (select count(*) from stock_vehicles
+        where sold_to_id = c.id and tenant_id = ${tenantId})::int        as "soldCount"
+    from contacts c
+    where c.id = ${id} and c.tenant_id = ${tenantId}
+    limit 1`;
+  return row ?? null;
+}
+
+/**
+ * Cariyle geçmiş araç hareketleri.
+ *
+ * "Ahmet Yılmaz" ismi tek başına galericiye bir şey hatırlatmıyor; hangi
+ * arabayı ondan aldığını görünce hatırlıyor. Bu yüzden cari detayının
+ * merkezinde kişi bilgisi değil araç listesi var.
+ */
+export async function getContactVehicles(
+  tenantId: number,
+  contactId: number,
+): Promise<{ bought: StockRow[]; sold: StockRow[] }> {
+  const [boughtRaw, soldRaw] = await Promise.all([
+    sql<StockRowRaw[]>`
+      ${stockSelect}
+      where sv.tenant_id = ${tenantId} and sv.purchased_from_id = ${contactId}
+      order by sv.purchase_date desc`,
+    sql<StockRowRaw[]>`
+      ${stockSelect}
+      where sv.tenant_id = ${tenantId} and sv.sold_to_id = ${contactId}
+      order by sv.sale_date desc nulls last`,
+  ]);
+  return { bought: enrich(boughtRaw), sold: enrich(soldRaw) };
 }
 
 export async function getExpenseTotals(
