@@ -1,40 +1,43 @@
-# Oto Alım-Satım Paneli
+# Oto Galeri Paneli
 
-Galeriler ve araç alım-satımı yapanlar için ilan akışı, fiyat konumlandırma ve
-stok analizi paneli.
+Oto galerileri ve araç alım-satımı yapanlar için **stok, maliyet ve kâr takibi**.
 
-Panelin sattığı şey "yeni ilan bildirimi" değil — onu galeri zaten alıyor.
-Sattığı şey şu üç soruya verilen cevap:
+Piyasadaki galeri programlarının çoğu "ilan bas" aracı. Bu panelin cevapladığı
+soru başka — galeri sahibinin gerçekten merak ettiği soru:
 
-- **Bu araç piyasanın ne kadar altında/üstünde?** (fırsat skoru)
-- **Bu kohort kaç günde dönüyor?** (devir hızı)
-- **Satıcı ne kadar sıkışmış?** (fiyat geçmişi + satıcı baskısı)
+> **Bu araç bana gerçekte kaça mal oldu ve kaç gün sermayemi yedi?**
 
-## Veri kaynağı yaklaşımı
+Alış fiyatını herkes biliyor. Üstüne ekspertiz, boya, bakım, lastik, noter,
+çekici biniyor ve gerçek kâr çoğu galeride **tahminen** biliniyor. Panel bunu
+kalem kalem takip edip net rakamı çıkarıyor.
 
-Portal sitelerinden veri kazımak üzerine kurulu **değil**. Ticari bir üründe
-bu hem kullanım şartları ihlali hem de haksız rekabet davası riski.
+## Ne gösteriyor
 
-Bunun yerine arz tarafı toplanıyor: galeriler stoklarını zaten XML olarak dışa
-veriyor (Otoplus, Oto Yazılım vb. stok programlarından). Galeri onboard edildiğinde
-feed'ini kendisi veriyor — hem veri sorunu çözülüyor hem de zaten müşteri olacak
-kitle toplanmış oluyor.
+- **Gerçek maliyet** — alış + tüm masraflar, araç başına
+- **Net kâr ve getiri** — hem tutar hem yatırılan paranın yüzdesi
+- **Günlük kâr ve yıllık getiri** — asıl kritik metrik. 200 günde 80 bin
+  kazandıran araç, 30 günde 50 bin kazandırandan **kötüdür**; sermaye devir
+  hızını hesaba katmayan her karşılaştırma yanlış sıralama üretir.
+- **Bağlı sermaye** — şu an stokta ne kadar para duruyor
+- **Ölü stok uyarısı** — 90 günü aşan araçlar ve orada kilitlenen tutar
+- **Masraf dağılımı** — para hangi kaleme gidiyor
+- **Cari takibi** — kimden kaç araç alındı, kime kaç araç satıldı
+- **Vadeli satışta bakiye** — tahsil edilen ve kalan
 
-Yeni bir kaynak eklemek `FeedAdapter` arayüzünü uygulamak demek; normalize ve
-skorlama katmanı hiç değişmiyor.
+Sermaye getirisi **maliyet ağırlıklı** hesaplanıyor: 2 milyonluk araçtaki %5 ile
+300 binlik araçtaki %20'yi eşit saymak galerinin performansını yanlış gösteriyor.
 
 ## Kurulum
 
 ```bash
 npm install
-cp .env.example .env.local        # DATABASE_URL'i kendine göre düzenle
+cp .env.example .env.local        # DATABASE_URL'i düzenle
 createdb otopanel
-npm run db:push                   # şemayı veritabanına uygula
-npm run seed                      # gerçekçi demo verisi üret (90 günlük geçmiş)
+npm run db:push
 npm run dev
 ```
 
-`http://localhost:3000`
+`http://localhost:3000` — panel boş başlar, ilk aracı ekleyince çalışmaya başlar.
 
 ## Komutlar
 
@@ -43,93 +46,72 @@ npm run dev
 | `npm run dev` | Geliştirme sunucusu |
 | `npm run build` / `npm start` | Üretim derlemesi ve sunucu |
 | `npm run typecheck` | TypeScript kontrolü |
-| `npm test` | Birim testleri (normalize, fiyatlama, XML ayrıştırma) |
+| `npm test` | Birim testleri |
 | `npm run db:push` | Şemayı veritabanına uygula |
 | `npm run db:studio` | Drizzle Studio |
-| `npm run seed` | Demo verisi üret (mevcut veriyi siler) |
-| `npm run ingest [feeds.json]` | Gerçek feed'leri tara ve skorları güncelle |
+| `npm run seed` | **Demo** piyasa verisi üretir (bkz. uyarı) |
+| `npm run ingest [feeds.json]` | Galeri feed'lerini tara |
 
-## Gerçek feed bağlama
+> `npm run seed` demo verisi üretir ve piyasa tablolarını siler. Panelde gerçek
+> stok kaydı varsa betik kendini durdurur; zorlamak için `npm run seed -- --force`.
+> Müşteri kurulumunda bu komut hiç çalıştırılmamalı.
 
-`feeds.example.json` dosyasını `feeds.json` olarak kopyala ve galerilerin
-XML adreslerini yaz:
+## Ekranlar
 
-```json
-[{ "code": "ornek-galeri", "name": "Örnek Oto", "url": "https://...", "city": "İstanbul" }]
-```
+| Yol | İş |
+|---|---|
+| `/` | Panel — bağlı sermaye, bu ay kâr, sermaye getirisi, ölü stok, masraf dağılımı |
+| `/araclar` | Stok listesi — filtre (stokta/rezerve/satılan/ölü) ve sıralama |
+| `/araclar/yeni` | Araç alımı kaydı |
+| `/araclar/[id]` | Araç detayı — masraf ekleme, satış kaydı, tahsilat takibi |
+| `/cariler` | Müşteri ve tedarikçiler |
+| `/pazar/*` | Piyasa analizi (ikinci katman — aşağıya bak) |
 
-Sonra periyodik çalıştır:
+## İkinci katman: piyasa analizi
 
-```
-*/15 * * * *  cd /path/to/panel && npm run ingest
-```
+`/pazar` altındaki ekranlar galerinin **kendi** stoğunu değil, piyasadaki
+ilanları analiz ediyor: fırsat skoru, fiyat kıranlar, kohort karşılaştırması.
 
-Her tur idempotent: aynı ilan tekrar geldiğinde `lastSeenAt` güncellenir, fiyat
-değiştiyse `price_events`'e satır düşer, feed'den kaybolduğunda `removedAt`
-damgalanır. Satış süresi ve devir hızı buradan üretilir.
+Bu modül ancak bir veri kaynağı bağlandığında anlam kazanıyor. Kaynak, galerilerin
+stok programlarından çıkan XML feed'leri — portal kazıma değil. `/pazar/kaynaklar`
+ekranından iki adımda bağlanıyor: **Çözümle** (hiçbir şey yazmadan feed'in ne
+getirdiğini raporlar) → **İçe aktar**.
+
+Feed adresi kullanıcıdan gelip isteği sunucu attığı için SSRF koruması var:
+yalnızca http/https, yalnızca standart portlar, DNS çözümlemesi sonrası
+özel/döngü/link-local aralıklar reddediliyor (bulut metadata servisi dahil),
+yönlendirme hedefi yeniden doğrulanıyor, gövde 25 MB ile sınırlı.
 
 ## Mimari
 
 ```
-feed (XML/JSON)
-   ↓  src/ingest/adapters/*      kaynağa özgü ayrıştırma
-   ↓  src/domain/normalize.ts    metin → kanonik araç (kohort anahtarı)
-   ↓  src/ingest/pipeline.ts     upsert + fiyat geçmişi + kohort istatistiği
-   ↓  src/domain/pricing.ts      beklenen fiyat, fırsat skoru, satıcı baskısı
-   ↓  src/lib/queries.ts         panelin okuduğu sorgular
-   ↓  src/app/*                  Next.js App Router sayfaları
+src/
+  domain/
+    profit.ts      maliyet, kâr, günlük kâr, yıllık getiri, portföy özeti
+    pricing.ts     piyasa kohort istatistiği, fırsat skoru, satıcı baskısı
+    normalize.ts   ilan metni → kanonik araç (alias sözlüğü + bulanık eşleşme)
+    taxonomy.ts    Türkiye pazarı marka/model/paket sözlüğü
+  db/
+    inventory.ts   stok tarafı: araç, masraf, tahsilat, cari
+    schema.ts      piyasa tarafı: ilan, kohort, fiyat geçmişi, kaynak
+  ingest/          feed adaptörleri, güvenli çekme, işleme hattı
+  lib/             sorgu katmanı ve biçimlendirme
+  app/             Next.js App Router sayfaları
 ```
 
-### Kritik parça: eşleştirme (`src/domain/normalize.ts`)
-
-Aynı araba beş kaynakta beş farklı yazılıyor ("VW GOLF 1.6 TDi COMFORTLINE",
-"Volkswagen Golf Comfortline 1.6", "Golf 1.6 Comfortlıne"). Kohortlar burada
-doğru kurulmazsa fiyat istatistiğinin tamamı çöp oluyor.
-
-Motor; marka/model/paket sözlüğünü alias'larla tarıyor, tutmazsa Levenshtein
-mesafesiyle bulanık eşleştiriyor ve her eşleşmeyi bir `confidence` ile döndürüyor.
-Güveni düşük eşleşmeler piyasa istatistiğine katılmıyor.
-
-### Fiyatlama (`src/domain/pricing.ts`)
-
-```
-beklenen fiyat = kohort medyanı × yıl × km × donanım × (hasar / kohort ort. hasarı)
-fırsat skoru   = (beklenen − ilan fiyatı) / beklenen × 100
-```
-
-Kohort merdiveni dardan genişe iniyor — tam kanonik araç → marka+model+yıl+yakıt+vites
-→ marka+model+yıl → marka+model. 2.el pazarının uzun kuyruğunda en dar kohort
-neredeyse hiç dolmadığı için bu kademe şart; geniş kohorta düşüldüğünde skorun
-güveni otomatik olarak azalıyor.
-
-İki nokta özellikle önemli:
-
-- **Yıl düzeltmesi**, geniş kohortta model yılı kohortun parçası olmadığı için
-  devreye giriyor. Beklenen km de yaşa göre kaydırılıyor — yoksa yıl ve km
-  düzeltmeleri aynı yaş farkını iki kez cezalandırıyor.
-- **Hasar düzeltmesi kohort ortalamasına göre normalize ediliyor.** Kohort medyanı
-  zaten hasarlı araçları içerdiği için ortalama bir hasar cezasını üstünde taşıyor;
-  normalize edilmezse hasarsız araçlar sistematik olarak "pahalı" görünüyor.
-
-## Ekranlar
-
-- **Fırsatlar** — KPI'lar, son 24 saatin akışı, en iyi fırsatlar, fiyat kıranlar,
-  uzun süredir dönmeyenler
-- **İlanlar** — filtreli liste (marka/model/il/galeri/yıl/fiyat/km/skor), URL'de
-  saklanan filtre durumu, çoklu seçim
-- **Karşılaştırma** — özellik özellik yan yana; her satırda en iyi değer işaretli
-- **Stok Analizi** — galerinin kendi stoğu: fazla fiyatlanmış araçlar, ölü stok
-- **İlan detayı** — fiyat geçmişi grafiği, satıcı baskısı, aynı kohorttaki rakipler
+Kâr ve maliyet veritabanında materyalize **edilmiyor**, her okumada
+`domain/profit.ts` üzerinden hesaplanıyor: masraf araç satıldıktan sonra da
+gelebiliyor (gecikmiş fatura) ve materyalize bir kâr kolonu sessizce bayatlardı.
 
 ## Yığın
 
 Next.js 16 (App Router) · React 19 · TypeScript · PostgreSQL 16 · Drizzle ORM ·
-Tailwind CSS 4
+Tailwind CSS 4 · Zod
 
 ## Yol haritası
 
-- [ ] Kayıtlı arama + Telegram/push bildirimi (`saved_searches` tablosu hazır)
-- [ ] Kullanıcı/galeri hesapları ve yetkilendirme
-- [ ] TRAMER / muayene km kaydı doğrulaması (km tutarsızlığı bayrağı)
-- [ ] Kohort bazlı devir hızı tahmini ("bu araç bu fiyata ~kaç günde satılır")
-- [ ] Eşleşmeyen ilanlar için elle düzeltme kuyruğu
+- [ ] Çoklu galeri (tenant) desteği ve kullanıcı hesapları
+- [ ] Takas zinciri arayüzü (`trade_in_for_id` alanı hazır)
+- [ ] Araç fotoğrafları ve belge yükleme
+- [ ] Aylık kâr/zarar raporu ve dışa aktarma (Excel)
+- [ ] Piyasa kohortuna bağlı araçlarda "stoğum piyasaya göre nerede" karşılaştırması

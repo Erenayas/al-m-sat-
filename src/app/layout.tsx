@@ -8,16 +8,21 @@ const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Oto Alım-Satım Paneli",
+  title: "Oto Galeri Paneli",
   description:
-    "Galeriler için ilan akışı, fiyat konumlandırma ve stok analizi paneli.",
+    "Galeriler için stok, maliyet ve kâr takibi. Araç başına gerçek maliyet, " +
+    "sermaye devir hızı ve ölü stok kontrolü.",
 };
 
+/**
+ * Ana ürün galerinin kendi stoğu; piyasa analizi feed bağlandığında
+ * anlam kazanan ikinci katman, o yüzden /pazar altında ayrı duruyor.
+ */
 const NAV = [
-  { href: "/", label: "Fırsatlar" },
-  { href: "/ilanlar", label: "İlanlar" },
-  { href: "/stok", label: "Stok Analizi" },
-  { href: "/kaynaklar", label: "Kaynaklar" },
+  { href: "/", label: "Panel" },
+  { href: "/araclar", label: "Araçlar" },
+  { href: "/cariler", label: "Cariler" },
+  { href: "/pazar", label: "Pazar" },
 ];
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

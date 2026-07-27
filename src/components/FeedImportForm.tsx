@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { analyzeFeed, importFeed, type FeedState, type SampleRow } from "@/app/kaynaklar/actions";
+import { analyzeFeed, importFeed, type FeedState, type SampleRow } from "@/app/pazar/kaynaklar/actions";
 import { formatNumber, formatTL } from "@/lib/format";
 
 const EMPTY: FeedState = { status: "idle" };

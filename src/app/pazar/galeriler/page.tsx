@@ -73,7 +73,7 @@ export default async function StockPage({
                     }`}
                   >
                     <td className="px-3 py-2.5">
-                      <Link href={`/stok?galeri=${s.code}`} className="block">
+                      <Link href={`/pazar/galeriler?galeri=${s.code}`} className="block">
                         <span className="font-medium">{s.name}</span>
                         <span className="block text-xs text-muted">{s.city}</span>
                       </Link>

@@ -162,7 +162,7 @@ export default async function ComparePage({
       <Card title="Karşılaştırma">
         <Empty>
           Karşılaştırmak için{" "}
-          <Link href="/ilanlar" className="text-accent">
+          <Link href="/pazar/ilanlar" className="text-accent">
             ilanlar
           </Link>{" "}
           sayfasından araç seç.
@@ -188,7 +188,7 @@ export default async function ComparePage({
                 </th>
                 {listings.map((l) => (
                   <th key={l.id} className="px-3 py-3 text-left align-top min-w-52">
-                    <Link href={`/ilan/${l.id}`} className="block">
+                    <Link href={`/pazar/ilan/${l.id}`} className="block">
                       <span className="block font-medium">
                         {l.make} {l.model}
                       </span>

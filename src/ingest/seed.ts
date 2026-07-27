@@ -295,8 +295,32 @@ function feedFor(gallery: (typeof GALLERIES)[number], cars: Car[], day: number):
 }
 
 async function main() {
-  console.log("Tablolar temizleniyor...");
-  await rawSql`TRUNCATE price_events, market_stats, listings, vehicles, sources, saved_searches RESTART IDENTITY CASCADE`;
+  // Güvenlik kilidi: bu betik demo verisi üretiyor ve piyasa tablolarını siliyor.
+  // Panelde gerçek stok varsa, kazayla çalıştırılması galerinin araç kayıtlarını
+  // riske atıyor — açık onay olmadan devam etmiyor.
+  const [{ count }] = await rawSql<{ count: string }[]>`
+    select count(*)::text as count from stock_vehicles`;
+  if (Number(count) > 0 && !process.argv.includes("--force")) {
+    console.error(
+      `DURDURULDU: panelde ${count} gerçek stok kaydı var.\n` +
+        "Bu betik demo verisi üretir ve piyasa tablolarını siler.\n" +
+        "Gerçekten istiyorsan: npm run seed -- --force",
+    );
+    await rawSql.end();
+    process.exit(1);
+  }
+
+  console.log("Piyasa tabloları temizleniyor...");
+  // TRUNCATE ... CASCADE kullanılmıyor: `stock_vehicles.vehicle_id` kanonik araç
+  // tablosuna bağlı olduğu için cascade, galerinin kendi stoğunu da siliyordu.
+  // Önce bağ koparılıp sonra sırayla siliniyor; stok tablolarına dokunulmuyor.
+  await rawSql`update stock_vehicles set vehicle_id = null where vehicle_id is not null`;
+  await rawSql`delete from price_events`;
+  await rawSql`delete from market_stats`;
+  await rawSql`delete from listings`;
+  await rawSql`delete from vehicles`;
+  await rawSql`delete from sources`;
+  await rawSql`delete from saved_searches`;
 
   const total = GALLERIES.reduce((a, g) => a + g.size, 0);
   console.log(`${total} araçlık envanter üretiliyor...`);

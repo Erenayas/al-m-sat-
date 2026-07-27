@@ -28,7 +28,7 @@ export function FilterBar({ options }: { options: FilterOptions }) {
     }
     // Marka değişince eski model filtresi geçersiz kalıyor
     if ("make" in patch) next.delete("model");
-    startTransition(() => router.replace(`/ilanlar?${next.toString()}`, { scroll: false }));
+    startTransition(() => router.replace(`/pazar/ilanlar?${next.toString()}`, { scroll: false }));
   }
 
   const models = current.make ? (options.modelsByMake[current.make] ?? []) : [];
@@ -109,7 +109,7 @@ export function FilterBar({ options }: { options: FilterOptions }) {
 
         {hasFilters && (
           <button
-            onClick={() => startTransition(() => router.replace("/ilanlar", { scroll: false }))}
+            onClick={() => startTransition(() => router.replace("/pazar/ilanlar", { scroll: false }))}
             className="h-9 rounded-lg border border-border px-3 text-sm text-muted hover:text-text"
           >
             Filtreleri temizle

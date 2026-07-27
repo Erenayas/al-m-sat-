@@ -102,7 +102,7 @@ function Cell({ column, row: r }: { column: Column; row: ListingRow }) {
 
     case "vehicle":
       return (
-        <Link href={`/ilan/${r.id}`} className="block max-w-[22rem]">
+        <Link href={`/pazar/ilan/${r.id}`} className="block max-w-[22rem]">
           <span className="font-medium">
             {r.make} {r.model}
             {r.trim ? ` ${r.trim}` : ""}

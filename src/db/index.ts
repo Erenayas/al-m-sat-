@@ -1,6 +1,10 @@
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
-import * as schema from "./schema";
+import * as marketSchema from "./schema";
+import * as inventorySchema from "./inventory";
+
+/** Piyasa tarafı (başkasının ilanı) ve stok tarafı (galerinin kendi aracı) tek şema altında */
+const schema = { ...marketSchema, ...inventorySchema };
 
 const url = process.env.DATABASE_URL;
 if (!url) throw new Error("DATABASE_URL tanımlı değil (.env.local dosyasına ekle)");

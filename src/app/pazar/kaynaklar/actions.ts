@@ -185,10 +185,10 @@ export async function importFeed(_prev: FeedState, formData: FormData): Promise<
 
     const scores = await recomputeStatsAndScores();
 
-    revalidatePath("/");
-    revalidatePath("/ilanlar");
-    revalidatePath("/stok");
-    revalidatePath("/kaynaklar");
+    revalidatePath("/pazar");
+    revalidatePath("/pazar/ilanlar");
+    revalidatePath("/pazar/galeriler");
+    revalidatePath("/pazar/kaynaklar");
 
     return {
       status: "ok",

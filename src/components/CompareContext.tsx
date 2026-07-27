@@ -102,7 +102,7 @@ function CompareTray() {
           <strong>{ids.length}</strong> araç seçildi
         </span>
         <Link
-          href={`/karsilastir?ids=${ids.join(",")}`}
+          href={`/pazar/karsilastir?ids=${ids.join(",")}`}
           className="rounded-full bg-accent px-4 py-1.5 text-sm font-medium text-white"
         >
           Karşılaştır

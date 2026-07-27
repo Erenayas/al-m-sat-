@@ -28,7 +28,7 @@ export default async function ListingDetailPage({
   return (
     <div className="space-y-6">
       <div>
-        <Link href="/ilanlar" className="text-xs text-accent">
+        <Link href="/pazar/ilanlar" className="text-xs text-accent">
           ← ilanlar
         </Link>
         <h1 className="text-xl font-semibold mt-1">
