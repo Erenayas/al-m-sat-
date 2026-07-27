@@ -108,3 +108,20 @@ export interface PriceHistoryRow {
   price: number;
   observedAt: Date;
 }
+
+/**
+ * RFC 2606/6761 ile ayrılmış, hiçbir zaman çözümlenmeyen alan adları.
+ * Demo verisi bunları kullanıyor; tıklanabilir gösterilirse kırık link gibi
+ * duruyor, o yüzden arayüzde ayırt ediliyor.
+ */
+const UNRESOLVABLE_SUFFIXES = [".test", ".example", ".invalid", ".localhost"];
+
+export function isDemoUrl(url: string | null | undefined): boolean {
+  if (!url) return false;
+  try {
+    const host = new URL(url).hostname.toLowerCase();
+    return UNRESOLVABLE_SUFFIXES.some((s) => host === s.slice(1) || host.endsWith(s));
+  } catch {
+    return false;
+  }
+}

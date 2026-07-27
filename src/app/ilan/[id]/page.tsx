@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ListingTable } from "@/components/ListingTable";
+import { ListingTable, SourceLink } from "@/components/ListingTable";
 import { Card, DealBadge, Empty, PressureBar, Stat } from "@/components/ui";
 import { analyzePricePressure } from "@/domain/pricing";
 import { formatDate, formatKm, formatPct, formatTL, formatTLShort } from "@/lib/format";
@@ -130,18 +130,9 @@ export default async function ListingDetailPage({
             <Row label="Boyalı / değişen">
               {listing.paintedParts ?? 0} / {listing.changedParts ?? 0}
             </Row>
-            {listing.url && (
-              <Row label="Kaynak">
-                <a
-                  href={listing.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-accent break-all"
-                >
-                  ilana git ↗
-                </a>
-              </Row>
-            )}
+            <Row label="Kaynak">
+              <SourceLink url={listing.url} />
+            </Row>
           </dl>
         </Card>
       </div>
@@ -152,7 +143,7 @@ export default async function ListingDetailPage({
       >
         <ListingTable
           rows={peers}
-          columns={["compare", "vehicle", "km", "price", "deal", "seller", "age"]}
+          columns={["compare", "vehicle", "km", "price", "deal", "seller", "age", "link"]}
           emptyText="Bu kohortta başka aktif ilan yok — skor daha geniş bir kümeden üretildi."
         />
       </Card>

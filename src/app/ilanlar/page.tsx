@@ -77,6 +77,7 @@ export default async function ListingsPage({
             "pressure",
             "seller",
             "age",
+            "link",
           ]}
         />
       </Card>

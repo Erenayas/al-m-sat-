@@ -124,7 +124,7 @@ export default async function StockPage({
           >
             <ListingTable
               rows={overpriced}
-              columns={["vehicle", "km", "price", "expected", "deal", "age"]}
+              columns={["vehicle", "km", "price", "expected", "deal", "age", "link"]}
               emptyText="Piyasanın belirgin üstünde fiyatlanmış araç yok."
             />
           </Card>
@@ -135,7 +135,7 @@ export default async function StockPage({
           >
             <ListingTable
               rows={deadStock}
-              columns={["vehicle", "km", "price", "change", "pressure", "age"]}
+              columns={["vehicle", "km", "price", "change", "pressure", "age", "link"]}
               emptyText="60 günü aşan araç yok."
             />
           </Card>

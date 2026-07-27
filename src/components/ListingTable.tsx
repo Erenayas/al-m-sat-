@@ -2,7 +2,7 @@ import Link from "next/link";
 import { CompareToggle } from "./CompareContext";
 import { DealBadge, Empty, PressureBar } from "./ui";
 import { formatKm, formatPct, formatTL, formatTLShort, timeAgo } from "@/lib/format";
-import type { ListingRow } from "@/lib/listings";
+import { isDemoUrl, type ListingRow } from "@/lib/listings";
 
 type Column =
   | "compare"
@@ -14,7 +14,8 @@ type Column =
   | "pressure"
   | "change"
   | "seller"
-  | "age";
+  | "age"
+  | "link";
 
 const DEFAULT_COLUMNS: Column[] = [
   "compare",
@@ -25,6 +26,7 @@ const DEFAULT_COLUMNS: Column[] = [
   "deal",
   "seller",
   "age",
+  "link",
 ];
 
 const HEADERS: Record<Column, string> = {
@@ -38,6 +40,7 @@ const HEADERS: Record<Column, string> = {
   change: "Değişim",
   seller: "Galeri",
   age: "İlan",
+  link: "",
 };
 
 const NUMERIC: Partial<Record<Column, boolean>> = {
@@ -155,5 +158,43 @@ function Cell({ column, row: r }: { column: Column; row: ListingRow }) {
           <span className="block">{r.daysOnMarket} gündür ilanda</span>
         </span>
       );
+
+    case "link":
+      return <SourceLink url={r.url} />;
   }
+}
+
+/**
+ * Kaynaktaki ilana giden dış link.
+ *
+ * Akışı tarayan galeri, aracı beğendiği anda ilana atlamak istiyor; araya
+ * bizim detay sayfamızı sokmak gereksiz bir tık. Demo verisindeki
+ * çözümlenmeyen adresler tıklanabilir gösterilmiyor — kırık link,
+ * link olmamasından daha kötü.
+ */
+export function SourceLink({ url }: { url: string | null }) {
+  if (!url) return <span className="text-muted text-xs">—</span>;
+
+  if (isDemoUrl(url)) {
+    return (
+      <span
+        className="text-muted text-xs cursor-help"
+        title={`Demo verisi — bu adres gerçek değil: ${url}`}
+      >
+        demo
+      </span>
+    );
+  }
+
+  return (
+    <a
+      href={url}
+      target="_blank"
+      rel="noreferrer"
+      title="İlanı kaynağında aç"
+      className="text-accent whitespace-nowrap hover:underline"
+    >
+      ilana git ↗
+    </a>
+  );
 }

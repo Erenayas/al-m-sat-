@@ -69,7 +69,7 @@ export default async function DashboardPage() {
       >
         <ListingTable
           rows={fresh}
-          columns={["compare", "vehicle", "km", "price", "expected", "deal", "seller", "age"]}
+          columns={["compare", "vehicle", "km", "price", "expected", "deal", "seller", "age", "link"]}
           emptyText="Son 24 saatte yeni ilan düşmedi."
         />
       </Card>
@@ -86,7 +86,7 @@ export default async function DashboardPage() {
         >
           <ListingTable
             rows={deals}
-            columns={["compare", "vehicle", "km", "price", "expected", "deal"]}
+            columns={["compare", "vehicle", "km", "price", "expected", "deal", "link"]}
           />
         </Card>
 
@@ -101,7 +101,7 @@ export default async function DashboardPage() {
         >
           <ListingTable
             rows={drops}
-            columns={["compare", "vehicle", "price", "change", "pressure", "deal"]}
+            columns={["compare", "vehicle", "price", "change", "pressure", "deal", "link"]}
             emptyText="Son 7 günde fiyat kıran olmadı."
           />
         </Card>
@@ -113,7 +113,7 @@ export default async function DashboardPage() {
       >
         <ListingTable
           rows={stale}
-          columns={["compare", "vehicle", "km", "price", "change", "pressure", "seller", "age"]}
+          columns={["compare", "vehicle", "km", "price", "change", "pressure", "seller", "age", "link"]}
           emptyText="45 günü aşan ilan yok."
         />
       </Card>
