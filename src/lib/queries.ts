@@ -1,6 +1,7 @@
 import "server-only";
 import { sql } from "@/db";
 import { computePressure } from "@/domain/pricing";
+import { isDemoUrl } from "./listings";
 import type {
   FilterOptions,
   Kpis,
@@ -276,6 +277,36 @@ export async function getCohortPeers(listingId: number, limit = 8): Promise<List
       limit ${limit}
     `,
   );
+}
+
+export interface SourceStatus {
+  code: string;
+  name: string;
+  city: string | null;
+  url: string | null;
+  lastRunAt: Date | null;
+  activeCount: number;
+  unmatchedCount: number;
+  /** Adresi çözümlenmeyen bir alan adıysa bu kaynak demo verisidir */
+  isDemo: boolean;
+}
+
+/** Kaynak sağlığı — hangi feed ne getiriyor, ne kadarı eşleşiyor */
+export async function getSourceStatus(): Promise<SourceStatus[]> {
+  const rows = await sql<Omit<SourceStatus, "isDemo">[]>`
+    select
+      s.code, s.name, s.city, s.url,
+      s.last_run_at as "lastRunAt",
+      count(l.id) filter (where l.status = 'active')::int as "activeCount",
+      count(l.id) filter (where l.status = 'active' and l.vehicle_id is null)::int
+        as "unmatchedCount"
+    from sources s
+    left join listings l on l.source_id = s.id
+    where s.is_active
+    group by s.code, s.name, s.city, s.url, s.last_run_at
+    order by count(l.id) filter (where l.status = 'active') desc, s.name
+  `;
+  return rows.map((r) => ({ ...r, isDemo: isDemoUrl(r.url) }));
 }
 
 export async function getListing(id: number): Promise<ListingRow | null> {

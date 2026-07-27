@@ -17,6 +17,7 @@ const NAV = [
   { href: "/", label: "Fırsatlar" },
   { href: "/ilanlar", label: "İlanlar" },
   { href: "/stok", label: "Stok Analizi" },
+  { href: "/kaynaklar", label: "Kaynaklar" },
 ];
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
