@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# ortam örneği paylaşılsın, gerçek ayarlar paylaşılmasın
+!.env.example
+
+# gerçek feed adresleri
+/feeds.json

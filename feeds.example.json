@@ -1,0 +1,14 @@
+[
+  {
+    "code": "ornek-galeri",
+    "name": "Örnek Oto Galeri",
+    "url": "https://ornek-galeri.example.com/stok.xml",
+    "city": "İstanbul"
+  },
+  {
+    "code": "ikinci-galeri",
+    "name": "İkinci Galeri",
+    "url": "https://ikinci-galeri.example.com/export/arac.xml",
+    "city": "Ankara"
+  }
+]

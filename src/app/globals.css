@@ -1,26 +1,76 @@
 @import "tailwindcss";
 
+/*
+  Panel yoğun bir veri arayüzü: renk, dekorasyon değil sinyal taşıyor.
+  Fırsat/piyasa/pahalı üçlüsü tek bir renk skalasına bağlı ve hem açık
+  hem koyu temada aynı anlamı koruyacak kontrastta tutuluyor.
+*/
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+  --bg: #f6f7f9;
+  --surface: #ffffff;
+  --surface-2: #f0f2f5;
+  --border: #dfe3e8;
+  --text: #14171c;
+  --text-muted: #61697a;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --hot: #047857;
+  --hot-bg: #d5f2e5;
+  --good: #0f766e;
+  --good-bg: #d9f0ee;
+  --fair: #6b7280;
+  --fair-bg: #eceef1;
+  --high: #b91c1c;
+  --high-bg: #fce0e0;
+  --accent: #1d4ed8;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --bg: #0b0d11;
+    --surface: #14171d;
+    --surface-2: #1b1f27;
+    --border: #262b34;
+    --text: #e8eaed;
+    --text-muted: #99a1b0;
+
+    --hot: #34d399;
+    --hot-bg: #0d3b2c;
+    --good: #5eead4;
+    --good-bg: #0d3733;
+    --fair: #9aa3b2;
+    --fair-bg: #23272f;
+    --high: #f87171;
+    --high-bg: #3d1618;
+    --accent: #7aa2ff;
   }
 }
 
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+  --color-text: var(--text);
+  --color-muted: var(--text-muted);
+  --color-hot: var(--hot);
+  --color-hot-bg: var(--hot-bg);
+  --color-good: var(--good);
+  --color-good-bg: var(--good-bg);
+  --color-fair: var(--fair);
+  --color-fair-bg: var(--fair-bg);
+  --color-high: var(--high);
+  --color-high-bg: var(--high-bg);
+  --color-accent: var(--accent);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* Sayı kolonları hizalansın diye tablo genelinde tabular rakamlar */
+table {
+  font-variant-numeric: tabular-nums;
 }
