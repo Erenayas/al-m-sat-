@@ -13,7 +13,8 @@
     "ingest": "tsx --env-file=.env.local src/ingest/run.ts",
     "test": "tsx --test src/domain/normalize.test.ts src/domain/pricing.test.ts src/domain/profit.test.ts src/ingest/adapters/galleryXml.test.ts src/ingest/fetchFeed.test.ts src/lib/listings.test.ts src/lib/password.test.ts src/lib/search.test.ts",
     "tenant": "tsx --conditions=react-server --env-file=.env.local src/scripts/tenant.ts",
-    "logos": "tsx src/scripts/logos.ts"
+    "logos": "tsx src/scripts/logos.ts",
+    "logos:add": "tsx --conditions=react-server src/scripts/logo-add.ts"
   },
   "dependencies": {
     "drizzle-orm": "^0.45.2",

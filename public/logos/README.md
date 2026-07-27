@@ -1,10 +1,32 @@
 # Marka logoları
 
-Bu klasöre `<slug>.svg` adıyla logo koyarsan panel otomatik olarak onu basar;
-dosya yoksa markanın kurumsal renginde harf rozeti gösterilir. Kod değişmez.
+Panel `<slug>.svg` (ya da `.png` / `.webp` / `.jpg`) dosyasını arar; bulursa
+basar, bulamazsa markanın kurumsal renginde harf rozeti gösterir. Kod değişmez.
 
 Slug'lar `src/domain/brands.ts` içindeki `BRAND_STYLES` tablosunda tanımlı.
 Örnek: `ferrari.svg`, `volkswagen.svg`, `mercedes-benz.svg`, `land-rover.svg`
 
-Not: marka logoları tescillidir. Ürünü satacaksan logoları kullanma hakkını
-kontrol et; bu depoya logo dosyası bilerek eklenmemiştir.
+## Toplu üretim
+
+```bash
+npm run logos
+```
+
+`simple-icons` paketinden 38 markayı üretir. O paketteki SVG'ler CC0 lisanslı.
+Eşleme elle doğrulanır: pakette "Proton" e-posta şirketi, "Toggl" zaman takip
+uygulaması olarak geçtiği için slug benzerliğine güvenilmez.
+
+## Tek marka ekleme
+
+```bash
+npm run logos:add -- "Mercedes-Benz" https://kaynak.com/mercedes.svg
+```
+
+Adresi doğrular, indirir, SVG ise rozet zeminine uyacak renge boyar ve doğru
+isimle kaydeder. Argümansız çalıştırırsan logosu eksik markaları listeler.
+
+## Telif
+
+Marka logoları tescilli markadır. `npm run logos` ile üretilenlerin SVG
+dosyaları CC0 olsa da markanın kendisi sahibine aittir. Elle eklediklerinin
+kaynağı ve kullanım hakkı senin sorumluluğunda.

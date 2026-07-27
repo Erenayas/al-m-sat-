@@ -14,6 +14,13 @@ import { brandInitials, brandStyle } from "@/domain/brands";
  * anlaşılıyor; `next/image` değil düz `<img>` çünkü çoğu markada dosya yok ve
  * sessizce geri düşmesi gerekiyor.
  */
+/**
+ * Denenen dosya uzantıları. `npm run logos` SVG üretiyor ama elle eklenen
+ * logolar (`npm run logos:add`) PNG de olabiliyor; sırayla denenip ilk
+ * bulunan kullanılıyor, hiçbiri yoksa harf rozetine düşülüyor.
+ */
+const EXTENSIONS = ["svg", "png", "webp", "jpg"] as const;
+
 export function BrandBadge({
   make,
   size = 28,
@@ -23,9 +30,10 @@ export function BrandBadge({
   size?: number;
   className?: string;
 }) {
-  const [hasLogo, setHasLogo] = useState(true);
+  const [attempt, setAttempt] = useState(0);
   const style = brandStyle(make);
   const initials = brandInitials(make);
+  const ext = EXTENSIONS[attempt];
 
   return (
     <span
@@ -33,13 +41,15 @@ export function BrandBadge({
       style={{ width: size, height: size, background: style.color, color: style.ink ?? "#fff" }}
       title={make ?? undefined}
     >
-      {hasLogo ? (
+      {ext ? (
         <img
-          src={`/logos/${style.slug}.svg`}
+          // Uzantı değişince tarayıcı yeni istek atsın diye key veriliyor
+          key={ext}
+          src={`/logos/${style.slug}.${ext}`}
           alt={make ?? ""}
           className="h-full w-full object-contain p-[14%]"
           loading="lazy"
-          onError={() => setHasLogo(false)}
+          onError={() => setAttempt((i) => i + 1)}
         />
       ) : (
         <span
