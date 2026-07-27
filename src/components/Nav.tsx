@@ -3,37 +3,79 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+export type IconName = "panel" | "arac" | "cari" | "pazar";
+
 export interface NavItem {
   href: string;
   label: string;
-  icon: keyof typeof ICONS;
+  icon: IconName;
 }
 
 /**
- * Sade çizgi ikonlar. Harici ikon paketi yerine satır içi SVG:
- * dört ikon için bir bağımlılık taşımak gereksiz, ayrıca hepsi
- * `currentColor` kullandığı için tema değişiminde kendiliğinden uyuyor.
+ * Menü ikonları.
+ *
+ * Bilinçli olarak elle `d="..."` yolu yazılmıyor: ilk denemede yollar
+ * bozuktu, `Z` sonrası göreli hareketler şekilleri viewBox dışına taşırdı ve
+ * ikonlar farklı boyutlarda görünüyordu. Bunun yerine hepsi `rect`, `circle`
+ * ve düz çizgi gibi koordinatı doğrulanabilir temel şekillerden kuruluyor;
+ * tüm koordinatlar 2-22 aralığında, yani hiçbiri taşamaz.
  */
-const ICONS = {
-  panel: "M3 12h7V3H3v9Zm0 9h7v-6H3v6Zm11 0h7v-9h-7v9Zm0-18v6h7V3h-7Z",
-  arac: "M5 17a2 2 0 1 0 4 0 2 2 0 0 0-4 0Zm10 0a2 2 0 1 0 4 0 2 2 0 0 0-4 0ZM3 17h2m4 0h6m4 0h2v-4l-2-5H7L3 13v4Z",
-  cari: "M16 19v-1a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v1M9.5 7a3 3 0 1 0 0 6 3 3 0 0 0 0-6Zm11 12v-1a4 4 0 0 0-3-3.9M15.5 7.1a3 3 0 0 1 0 5.8",
-  pazar: "M4 19V9m5 10V5m5 14v-7m5 7V8",
-} as const;
-
-function Icon({ name }: { name: keyof typeof ICONS }) {
+function Icon({ name }: { name: IconName }) {
   return (
     <svg
       viewBox="0 0 24 24"
-      className="size-[18px] shrink-0"
+      width="17"
+      height="17"
+      preserveAspectRatio="xMidYMid meet"
+      className="shrink-0"
       fill="none"
       stroke="currentColor"
       strokeWidth="1.7"
       strokeLinecap="round"
       strokeLinejoin="round"
-      aria-hidden
+      aria-hidden="true"
+      focusable="false"
     >
-      <path d={ICONS[name]} />
+      {name === "panel" && (
+        <>
+          <rect x="3.5" y="3.5" width="7" height="7" rx="1.6" />
+          <rect x="13.5" y="3.5" width="7" height="7" rx="1.6" />
+          <rect x="3.5" y="13.5" width="7" height="7" rx="1.6" />
+          <rect x="13.5" y="13.5" width="7" height="7" rx="1.6" />
+        </>
+      )}
+
+      {name === "arac" && (
+        <>
+          {/* gövde */}
+          <rect x="2.5" y="11" width="19" height="6" rx="2" />
+          {/* tavan */}
+          <path d="M6 11 7.6 7.4A1.6 1.6 0 0 1 9 6.5h6a1.6 1.6 0 0 1 1.4.9L18 11" />
+          {/* tekerlekler */}
+          <circle cx="7.5" cy="17" r="1.7" />
+          <circle cx="16.5" cy="17" r="1.7" />
+        </>
+      )}
+
+      {name === "cari" && (
+        <>
+          {/* öndeki kişi */}
+          <circle cx="9.5" cy="8" r="3.2" />
+          <path d="M3.5 19.5a6 6 0 0 1 12 0" />
+          {/* arkadaki kişi */}
+          <path d="M16.4 5.6a3.2 3.2 0 0 1 0 4.8" />
+          <path d="M17.8 13.8a5 5 0 0 1 2.7 4.4" />
+        </>
+      )}
+
+      {name === "pazar" && (
+        <>
+          <path d="M4 20.5V11" />
+          <path d="M9.3 20.5V5.5" />
+          <path d="M14.7 20.5v-6" />
+          <path d="M20 20.5V8.5" />
+        </>
+      )}
     </svg>
   );
 }
@@ -47,7 +89,7 @@ function isActive(pathname: string, href: string): boolean {
 export function SidebarNav({ items }: { items: NavItem[] }) {
   const pathname = usePathname();
   return (
-    <nav className="flex flex-col gap-1">
+    <nav className="flex flex-col gap-0.5">
       {items.map((item) => (
         <Link
           key={item.href}
@@ -56,7 +98,7 @@ export function SidebarNav({ items }: { items: NavItem[] }) {
           data-active={isActive(pathname, item.href)}
         >
           <Icon name={item.icon} />
-          {item.label}
+          <span>{item.label}</span>
         </Link>
       ))}
     </nav>
@@ -67,16 +109,16 @@ export function SidebarNav({ items }: { items: NavItem[] }) {
 export function TopNav({ items }: { items: NavItem[] }) {
   const pathname = usePathname();
   return (
-    <nav className="flex items-center gap-1 overflow-x-auto">
+    <nav className="flex items-center gap-0.5">
       {items.map((item) => (
         <Link
           key={item.href}
           href={item.href}
-          className="nav-link !py-1.5"
+          className="nav-link nav-link-compact"
           data-active={isActive(pathname, item.href)}
         >
           <Icon name={item.icon} />
-          {item.label}
+          <span>{item.label}</span>
         </Link>
       ))}
     </nav>
